@@ -1,0 +1,771 @@
+{
+  "generatedAt": "2026-09-23T11:19:18.211Z",
+  "dataVersion": "2026-09-23",
+  "settings": {
+    "tolerance_mm": 2,
+    "wide_hoof_model": "ultra",
+    "fresh_trim_add_mm": 4,
+    "measure_guide_url": "https://www.eqfusion.com/how-to-measure-for-equine-fusion-jogging-shoes",
+    "dealer_finder_url": "https://www.eqfusion.com/dealers"
+  },
+  "models": [
+    {
+      "model_id": "trailblazer",
+      "name": "Trailblazer",
+      "use_case": "Trail riding • Sport • Hobby/leisure",
+      "sold_as": "single",
+      "product_url": "https://www.eqfusion.com/products/trailblazer-jogging-shoe",
+      "image_url": null,
+      "sort_order": 1
+    },
+    {
+      "model_id": "active",
+      "name": "Active",
+      "use_case": "Transition • Trail riding • Jumping • Horses with narrow gait • Hobby/leisure",
+      "sold_as": "pair",
+      "product_url": "https://www.eqfusion.com/products/active-jogging-shoe",
+      "image_url": null,
+      "sort_order": 2
+    },
+    {
+      "model_id": "ultra",
+      "name": "Ultra",
+      "use_case": "Active rehabilitation • Transition • Hobby/leisure • Odd shaped hooves • Horses with twisting movement • Extra soft and breathable upper",
+      "sold_as": "pair",
+      "product_url": "https://www.eqfusion.com/products/ultra-jogging-shoe",
+      "image_url": null,
+      "sort_order": 3
+    },
+    {
+      "model_id": "trekking",
+      "name": "Trekking",
+      "use_case": "Terrain riding • Jumping • Trekking • Trail riding • Wet conditions • Most hoof types",
+      "sold_as": "single",
+      "product_url": "https://www.eqfusion.com/products/trekking-shoe",
+      "image_url": null,
+      "sort_order": 4
+    }
+  ],
+  "sizes": [
+    {
+      "model_id": "trailblazer",
+      "size_label": "9 Slim",
+      "size": "9",
+      "variant": "slim",
+      "length_min_mm": 90,
+      "length_max_mm": 97,
+      "width_min_mm": 81,
+      "width_max_mm": 89
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "9",
+      "size": "9",
+      "variant": "regular",
+      "length_min_mm": 90,
+      "length_max_mm": 97,
+      "width_min_mm": 90,
+      "width_max_mm": 97
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "10 Slim",
+      "size": "10",
+      "variant": "slim",
+      "length_min_mm": 98,
+      "length_max_mm": 105,
+      "width_min_mm": 88,
+      "width_max_mm": 97
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "10",
+      "size": "10",
+      "variant": "regular",
+      "length_min_mm": 98,
+      "length_max_mm": 105,
+      "width_min_mm": 98,
+      "width_max_mm": 105
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "11 Slim",
+      "size": "11",
+      "variant": "slim",
+      "length_min_mm": 106,
+      "length_max_mm": 113,
+      "width_min_mm": 96,
+      "width_max_mm": 105
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "11",
+      "size": "11",
+      "variant": "regular",
+      "length_min_mm": 106,
+      "length_max_mm": 113,
+      "width_min_mm": 106,
+      "width_max_mm": 113
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "12 Slim",
+      "size": "12",
+      "variant": "slim",
+      "length_min_mm": 114,
+      "length_max_mm": 121,
+      "width_min_mm": 104,
+      "width_max_mm": 113
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "12",
+      "size": "12",
+      "variant": "regular",
+      "length_min_mm": 114,
+      "length_max_mm": 121,
+      "width_min_mm": 114,
+      "width_max_mm": 121
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "13 Slim",
+      "size": "13",
+      "variant": "slim",
+      "length_min_mm": 122,
+      "length_max_mm": 129,
+      "width_min_mm": 112,
+      "width_max_mm": 121
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "13",
+      "size": "13",
+      "variant": "regular",
+      "length_min_mm": 122,
+      "length_max_mm": 129,
+      "width_min_mm": 122,
+      "width_max_mm": 129
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "14 Slim",
+      "size": "14",
+      "variant": "slim",
+      "length_min_mm": 130,
+      "length_max_mm": 137,
+      "width_min_mm": 120,
+      "width_max_mm": 129
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "14",
+      "size": "14",
+      "variant": "regular",
+      "length_min_mm": 130,
+      "length_max_mm": 137,
+      "width_min_mm": 130,
+      "width_max_mm": 137
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "14.5 Slim",
+      "size": "14.5",
+      "variant": "slim",
+      "length_min_mm": 138,
+      "length_max_mm": 145,
+      "width_min_mm": 128,
+      "width_max_mm": 137
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "14.5",
+      "size": "14.5",
+      "variant": "regular",
+      "length_min_mm": 138,
+      "length_max_mm": 145,
+      "width_min_mm": 138,
+      "width_max_mm": 145
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "15 Slim",
+      "size": "15",
+      "variant": "slim",
+      "length_min_mm": 146,
+      "length_max_mm": 153,
+      "width_min_mm": 136,
+      "width_max_mm": 145
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "15",
+      "size": "15",
+      "variant": "regular",
+      "length_min_mm": 146,
+      "length_max_mm": 153,
+      "width_min_mm": 146,
+      "width_max_mm": 153
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "16 Slim",
+      "size": "16",
+      "variant": "slim",
+      "length_min_mm": 154,
+      "length_max_mm": 160,
+      "width_min_mm": 144,
+      "width_max_mm": 153
+    },
+    {
+      "model_id": "trailblazer",
+      "size_label": "16",
+      "size": "16",
+      "variant": "regular",
+      "length_min_mm": 154,
+      "length_max_mm": 160,
+      "width_min_mm": 154,
+      "width_max_mm": 160
+    },
+    {
+      "model_id": "active",
+      "size_label": "7 Slim",
+      "size": "7",
+      "variant": "slim",
+      "length_min_mm": 66,
+      "length_max_mm": 75,
+      "width_min_mm": null,
+      "width_max_mm": 60
+    },
+    {
+      "model_id": "active",
+      "size_label": "7",
+      "size": "7",
+      "variant": "regular",
+      "length_min_mm": 66,
+      "length_max_mm": 75,
+      "width_min_mm": 61,
+      "width_max_mm": 70
+    },
+    {
+      "model_id": "active",
+      "size_label": "8 Slim",
+      "size": "8",
+      "variant": "slim",
+      "length_min_mm": 76,
+      "length_max_mm": 85,
+      "width_min_mm": null,
+      "width_max_mm": 70
+    },
+    {
+      "model_id": "active",
+      "size_label": "8",
+      "size": "8",
+      "variant": "regular",
+      "length_min_mm": 76,
+      "length_max_mm": 85,
+      "width_min_mm": 71,
+      "width_max_mm": 80
+    },
+    {
+      "model_id": "active",
+      "size_label": "9 Slim",
+      "size": "9",
+      "variant": "slim",
+      "length_min_mm": 86,
+      "length_max_mm": 95,
+      "width_min_mm": null,
+      "width_max_mm": 80
+    },
+    {
+      "model_id": "active",
+      "size_label": "9",
+      "size": "9",
+      "variant": "regular",
+      "length_min_mm": 86,
+      "length_max_mm": 95,
+      "width_min_mm": 81,
+      "width_max_mm": 90
+    },
+    {
+      "model_id": "active",
+      "size_label": "10 Slim",
+      "size": "10",
+      "variant": "slim",
+      "length_min_mm": 96,
+      "length_max_mm": 105,
+      "width_min_mm": null,
+      "width_max_mm": 90
+    },
+    {
+      "model_id": "active",
+      "size_label": "10",
+      "size": "10",
+      "variant": "regular",
+      "length_min_mm": 96,
+      "length_max_mm": 105,
+      "width_min_mm": 91,
+      "width_max_mm": 100
+    },
+    {
+      "model_id": "active",
+      "size_label": "11 Slim",
+      "size": "11",
+      "variant": "slim",
+      "length_min_mm": 106,
+      "length_max_mm": 115,
+      "width_min_mm": null,
+      "width_max_mm": 100
+    },
+    {
+      "model_id": "active",
+      "size_label": "11",
+      "size": "11",
+      "variant": "regular",
+      "length_min_mm": 106,
+      "length_max_mm": 115,
+      "width_min_mm": 101,
+      "width_max_mm": 110
+    },
+    {
+      "model_id": "active",
+      "size_label": "12 Slim",
+      "size": "12",
+      "variant": "slim",
+      "length_min_mm": 116,
+      "length_max_mm": 125,
+      "width_min_mm": null,
+      "width_max_mm": 110
+    },
+    {
+      "model_id": "active",
+      "size_label": "12",
+      "size": "12",
+      "variant": "regular",
+      "length_min_mm": 116,
+      "length_max_mm": 125,
+      "width_min_mm": 111,
+      "width_max_mm": 120
+    },
+    {
+      "model_id": "active",
+      "size_label": "13 Slim",
+      "size": "13",
+      "variant": "slim",
+      "length_min_mm": 126,
+      "length_max_mm": 135,
+      "width_min_mm": null,
+      "width_max_mm": 120
+    },
+    {
+      "model_id": "active",
+      "size_label": "13",
+      "size": "13",
+      "variant": "regular",
+      "length_min_mm": 126,
+      "length_max_mm": 135,
+      "width_min_mm": 121,
+      "width_max_mm": 130
+    },
+    {
+      "model_id": "active",
+      "size_label": "14 Slim",
+      "size": "14",
+      "variant": "slim",
+      "length_min_mm": 136,
+      "length_max_mm": 145,
+      "width_min_mm": null,
+      "width_max_mm": 130
+    },
+    {
+      "model_id": "active",
+      "size_label": "14",
+      "size": "14",
+      "variant": "regular",
+      "length_min_mm": 136,
+      "length_max_mm": 145,
+      "width_min_mm": 131,
+      "width_max_mm": 140
+    },
+    {
+      "model_id": "active",
+      "size_label": "15 Slim",
+      "size": "15",
+      "variant": "slim",
+      "length_min_mm": 146,
+      "length_max_mm": 155,
+      "width_min_mm": null,
+      "width_max_mm": 140
+    },
+    {
+      "model_id": "active",
+      "size_label": "15",
+      "size": "15",
+      "variant": "regular",
+      "length_min_mm": 146,
+      "length_max_mm": 155,
+      "width_min_mm": 141,
+      "width_max_mm": 150
+    },
+    {
+      "model_id": "active",
+      "size_label": "16 Slim",
+      "size": "16",
+      "variant": "slim",
+      "length_min_mm": 156,
+      "length_max_mm": 165,
+      "width_min_mm": null,
+      "width_max_mm": 150
+    },
+    {
+      "model_id": "active",
+      "size_label": "16",
+      "size": "16",
+      "variant": "regular",
+      "length_min_mm": 156,
+      "length_max_mm": 165,
+      "width_min_mm": 151,
+      "width_max_mm": 160
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "10 Slim",
+      "size": "10",
+      "variant": "slim",
+      "length_min_mm": 91,
+      "length_max_mm": 100,
+      "width_min_mm": null,
+      "width_max_mm": 85
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "10",
+      "size": "10",
+      "variant": "regular",
+      "length_min_mm": 91,
+      "length_max_mm": 100,
+      "width_min_mm": 86,
+      "width_max_mm": 95
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "11 Slim",
+      "size": "11",
+      "variant": "slim",
+      "length_min_mm": 101,
+      "length_max_mm": 110,
+      "width_min_mm": null,
+      "width_max_mm": 95
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "11",
+      "size": "11",
+      "variant": "regular",
+      "length_min_mm": 101,
+      "length_max_mm": 110,
+      "width_min_mm": 96,
+      "width_max_mm": 105
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "12 Slim",
+      "size": "12",
+      "variant": "slim",
+      "length_min_mm": 111,
+      "length_max_mm": 120,
+      "width_min_mm": null,
+      "width_max_mm": 105
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "12",
+      "size": "12",
+      "variant": "regular",
+      "length_min_mm": 111,
+      "length_max_mm": 120,
+      "width_min_mm": 106,
+      "width_max_mm": 115
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "13 Slim",
+      "size": "13",
+      "variant": "slim",
+      "length_min_mm": 121,
+      "length_max_mm": 130,
+      "width_min_mm": null,
+      "width_max_mm": 115
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "13",
+      "size": "13",
+      "variant": "regular",
+      "length_min_mm": 121,
+      "length_max_mm": 130,
+      "width_min_mm": 116,
+      "width_max_mm": 125
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "14 Slim",
+      "size": "14",
+      "variant": "slim",
+      "length_min_mm": 131,
+      "length_max_mm": 140,
+      "width_min_mm": null,
+      "width_max_mm": 125
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "14",
+      "size": "14",
+      "variant": "regular",
+      "length_min_mm": 131,
+      "length_max_mm": 140,
+      "width_min_mm": 126,
+      "width_max_mm": 135
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "15 Slim",
+      "size": "15",
+      "variant": "slim",
+      "length_min_mm": 141,
+      "length_max_mm": 150,
+      "width_min_mm": null,
+      "width_max_mm": 135
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "15",
+      "size": "15",
+      "variant": "regular",
+      "length_min_mm": 141,
+      "length_max_mm": 150,
+      "width_min_mm": 136,
+      "width_max_mm": 145
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "16 Slim",
+      "size": "16",
+      "variant": "slim",
+      "length_min_mm": 151,
+      "length_max_mm": 160,
+      "width_min_mm": null,
+      "width_max_mm": 145
+    },
+    {
+      "model_id": "ultra",
+      "size_label": "16",
+      "size": "16",
+      "variant": "regular",
+      "length_min_mm": 151,
+      "length_max_mm": 160,
+      "width_min_mm": 146,
+      "width_max_mm": 155
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "7 Slim",
+      "size": "7",
+      "variant": "slim",
+      "length_min_mm": 66,
+      "length_max_mm": 75,
+      "width_min_mm": null,
+      "width_max_mm": 60
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "7",
+      "size": "7",
+      "variant": "regular",
+      "length_min_mm": 66,
+      "length_max_mm": 75,
+      "width_min_mm": 61,
+      "width_max_mm": 70
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "8 Slim",
+      "size": "8",
+      "variant": "slim",
+      "length_min_mm": 76,
+      "length_max_mm": 85,
+      "width_min_mm": null,
+      "width_max_mm": 70
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "8",
+      "size": "8",
+      "variant": "regular",
+      "length_min_mm": 76,
+      "length_max_mm": 85,
+      "width_min_mm": 71,
+      "width_max_mm": 80
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "9 Slim",
+      "size": "9",
+      "variant": "slim",
+      "length_min_mm": 86,
+      "length_max_mm": 95,
+      "width_min_mm": null,
+      "width_max_mm": 80
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "9",
+      "size": "9",
+      "variant": "regular",
+      "length_min_mm": 86,
+      "length_max_mm": 95,
+      "width_min_mm": 81,
+      "width_max_mm": 90
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "10 Slim",
+      "size": "10",
+      "variant": "slim",
+      "length_min_mm": 96,
+      "length_max_mm": 105,
+      "width_min_mm": null,
+      "width_max_mm": 90
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "10",
+      "size": "10",
+      "variant": "regular",
+      "length_min_mm": 96,
+      "length_max_mm": 105,
+      "width_min_mm": 91,
+      "width_max_mm": 100
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "11 Slim",
+      "size": "11",
+      "variant": "slim",
+      "length_min_mm": 106,
+      "length_max_mm": 115,
+      "width_min_mm": null,
+      "width_max_mm": 100
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "11",
+      "size": "11",
+      "variant": "regular",
+      "length_min_mm": 106,
+      "length_max_mm": 115,
+      "width_min_mm": 101,
+      "width_max_mm": 110
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "12 Slim",
+      "size": "12",
+      "variant": "slim",
+      "length_min_mm": 116,
+      "length_max_mm": 125,
+      "width_min_mm": null,
+      "width_max_mm": 110
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "12",
+      "size": "12",
+      "variant": "regular",
+      "length_min_mm": 116,
+      "length_max_mm": 125,
+      "width_min_mm": 111,
+      "width_max_mm": 120
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "13 Slim",
+      "size": "13",
+      "variant": "slim",
+      "length_min_mm": 126,
+      "length_max_mm": 135,
+      "width_min_mm": null,
+      "width_max_mm": 120
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "13",
+      "size": "13",
+      "variant": "regular",
+      "length_min_mm": 126,
+      "length_max_mm": 135,
+      "width_min_mm": 121,
+      "width_max_mm": 130
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "14 Slim",
+      "size": "14",
+      "variant": "slim",
+      "length_min_mm": 136,
+      "length_max_mm": 145,
+      "width_min_mm": null,
+      "width_max_mm": 130
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "14",
+      "size": "14",
+      "variant": "regular",
+      "length_min_mm": 136,
+      "length_max_mm": 145,
+      "width_min_mm": 131,
+      "width_max_mm": 140
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "15 Slim",
+      "size": "15",
+      "variant": "slim",
+      "length_min_mm": 146,
+      "length_max_mm": 155,
+      "width_min_mm": null,
+      "width_max_mm": 140
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "15",
+      "size": "15",
+      "variant": "regular",
+      "length_min_mm": 146,
+      "length_max_mm": 155,
+      "width_min_mm": 141,
+      "width_max_mm": 150
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "16 Slim",
+      "size": "16",
+      "variant": "slim",
+      "length_min_mm": 156,
+      "length_max_mm": 165,
+      "width_min_mm": null,
+      "width_max_mm": 150
+    },
+    {
+      "model_id": "trekking",
+      "size_label": "16",
+      "size": "16",
+      "variant": "regular",
+      "length_min_mm": 156,
+      "length_max_mm": 165,
+      "width_min_mm": 151,
+      "width_max_mm": 160
+    }
+  ]
+}
