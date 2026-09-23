@@ -32,7 +32,7 @@ const MIME = {
 };
 
 // Only these folders are served (never node_modules, source-material, .git, …).
-const ALLOWED = ['demo', 'src', 'data', 'assets'];
+const ALLOWED = ['demo', 'src', 'data', 'assets', 'dist'];
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');

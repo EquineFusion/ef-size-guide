@@ -10,10 +10,12 @@
 // The widget also registers itself as window.EFSizeGuide.mount(element, options).
 //
 // Options (all optional):
+//   data          the size chart object itself (skips loading dataUrl – used by the shareable test page)
 //   dataUrl       URL of size-chart.json      (default: ../data/size-chart.json next to this file)
 //   imageBaseUrl  base URL for image_url      (default: the folder above /data/)
 //   loadCss       inject widget.css           (default: true)
 //   updateUrl     keep ?l=&w=&u= in the address bar after each calculation (default: true)
+//   share         show the "Copy link" button (default: true)
 //   onResult      function(result) – called with the raw engine output (used by the debug panel)
 //
 // Rules for this file:
@@ -91,9 +93,10 @@ let instanceCount = 0;
  */
 export async function mount(element, options = {}) {
   const id = `efsg-${++instanceCount}`;
-  const dataUrl = new URL(options.dataUrl || '../data/size-chart.json', import.meta.url).href;
-  const imageBaseUrl = new URL(options.imageBaseUrl || '../', dataUrl).href;
+  const dataUrl = resolveUrl(options.dataUrl || '../data/size-chart.json', import.meta.url);
+  const imageBaseUrl = resolveUrl(options.imageBaseUrl || '../', dataUrl);
   const updateUrl = options.updateUrl !== false;
+  const showShare = options.share !== false;
   const onResult = typeof options.onResult === 'function' ? options.onResult : () => {};
 
   if (options.loadCss !== false) loadCss();
@@ -183,9 +186,13 @@ export async function mount(element, options = {}) {
 
   // --- Load data --------------------------------------------------------------
   try {
-    const res = await fetch(dataUrl);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    data = await res.json();
+    if (options.data) {
+      data = options.data;
+    } else {
+      const res = await fetch(dataUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    }
   } catch (err) {
     status.textContent = strings.loadError;
     status.classList.add('efsg-status-error');
@@ -238,10 +245,10 @@ export async function mount(element, options = {}) {
       )
     );
 
-    const share = makeShareButton(input);
+    const share = showShare ? makeShareButton(input) : null;
 
     if (result.status === 'no_match') {
-      results.replaceChildren(
+      setResults(
         hoof,
         el('div', { class: 'efsg-no-match' }, [
           el('p', { class: 'efsg-no-match-title' }, strings.noMatch),
@@ -260,7 +267,12 @@ export async function mount(element, options = {}) {
     const heading = [el('h3', { class: 'efsg-results-title' }, recs.length > 1 ? strings.resultMany(recs.length) : strings.resultOne)];
     if (recs.length > 1) heading.push(el('p', { class: 'efsg-results-hint' }, strings.resultManyHint));
 
-    results.replaceChildren(hoof, ...heading, ...recs.map(renderCard), share);
+    setResults(hoof, ...heading, ...recs.map(renderCard), share);
+  }
+
+  // Replace the result area, skipping empty parts (e.g. share button turned off).
+  function setResults(...nodes) {
+    results.replaceChildren(...nodes.filter(Boolean));
   }
 
   function renderCard(rec) {
@@ -303,7 +315,7 @@ export async function mount(element, options = {}) {
       return frame;
     }
     const img = el('img', {
-      src: new URL(model.image_url, imageBaseUrl).href,
+      src: resolveUrl(model.image_url, imageBaseUrl) || model.image_url,
       alt: model.name,
       loading: 'lazy',
       decoding: 'async',
@@ -347,6 +359,16 @@ export async function mount(element, options = {}) {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+// Resolve a (relative) URL against a base. Returns null instead of throwing
+// when the base cannot be used (e.g. the widget is inlined in an about:srcdoc page).
+function resolveUrl(url, base) {
+  try {
+    return new URL(url, base || undefined).href;
+  } catch {
+    return null;
+  }
+}
 
 // Create an element: el('a', { href: '…', class: '…' }, ['text', childNode]).
 // Text is always set as text (never HTML), so data can never inject markup.
@@ -466,8 +488,8 @@ function writeUrlParams(input) {
 
 // Inject widget.css once (next to this file), unless the page already has it.
 function loadCss() {
-  const href = new URL('./widget.css', import.meta.url).href;
-  if (document.querySelector(`link[data-efsg-css], link[href="${href}"]`)) return;
+  const href = resolveUrl('./widget.css', import.meta.url);
+  if (!href || document.querySelector(`link[data-efsg-css], link[href="${href}"]`)) return;
   const link = el('link', { rel: 'stylesheet', href, 'data-efsg-css': '' });
   document.head.append(link);
 }
