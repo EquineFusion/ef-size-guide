@@ -148,7 +148,7 @@ Motoren skal være deterministisk og 100 % testdekket på grensetilfeller (nøya
 - **Farge:** aksent = EF-knappeblå `#062a56` (Webflow `--eqfu--blue-950`), hover `#00359e`. Fonten arves fra siden.
 - Lenker åpnes i samme fane. Mål vises i valgt enhet («Hoof: 11.8 × 11.0 cm»); Regular vises som «12 Regular».
 - Delt lenke: `?l=11.8&w=11.0&u=cm&src=share` (`u` = cm/in/mm; mm vises i cm).
-- **Delbar testside:** `npm run build-share` → `dist/share/index.html` (alt inlinet) publiseres som claude.ai-artifact https://claude.ai/artifact/J8bxWRthd8RxjNaKurZody («Anyone with the link»). Der er «Copy link» og adresselinje skrudd av (fungerer ikke i claude.ai-rammen).
+- **Delbar testside:** `npm run build-share` → `dist/share/index.html` (alt inlinet) publiseres som claude.ai-artifact https://claude.ai/artifact/J8bxWRthd8RxjNaKurZody («Anyone with the link» – delt med kollegaer). **Publiser alltid med denne `url`** så lenken kollegaene har blir oppdatert (ikke ny artifact). Der er «Copy link» og adresselinje skrudd av (fungerer ikke i claude.ai-rammen).
 - **UI-tekster er utkast** – ikke endelig godkjent av Sven Erik.
 
 ## Analytics
