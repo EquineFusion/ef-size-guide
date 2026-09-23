@@ -15,6 +15,10 @@
 //
 // Only built-in Node APIs (fetch). Usage: npm run fetch-images
 //
+// Models that already have an image in assets/images/ are SKIPPED, so hand-edited
+// images (e.g. the cropped Trailblazer image) are never overwritten by accident.
+// To download again anyway: npm run fetch-images -- --force
+//
 // NOTE: this script does not change the Excel file. After checking the images,
 // put the relative path (e.g. assets/images/trailblazer.png) in the image_url column
 // of the `models` sheet and run `npm run build-data`.
@@ -136,11 +140,18 @@ async function main() {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data', 'size-chart.json'), 'utf8'));
   const outDir = path.join(root, 'assets', 'images');
   fs.mkdirSync(outDir, { recursive: true });
+  const force = process.argv.includes('--force');
 
   // 1. Fetch all pages and find candidate images.
   const candidates = [];
   const missing = [];
+  const skipped = [];
   for (const model of data.models) {
+    const existing = fs.readdirSync(outDir).find((f) => f.startsWith(`${model.model_id}.`));
+    if (existing && !force) {
+      skipped.push(`${model.model_id}: assets/images/${existing} finnes allerede`);
+      continue;
+    }
     if (!model.product_url) {
       missing.push(`${model.model_id}: ingen product_url`);
       continue;
@@ -186,6 +197,10 @@ async function main() {
   }
 
   // 3. Report.
+  if (skipped.length) {
+    console.log('Hoppet over (bruk --force for å laste ned på nytt):');
+    for (const s of skipped) console.log(`  - ${s}`);
+  }
   for (const d of downloaded) {
     const kb = Math.round(d.bytes / 1024);
     const dims = d.dims ? `${d.dims.width} × ${d.dims.height} px` : 'ukjente dimensjoner';
@@ -198,7 +213,7 @@ async function main() {
     console.log('\nMangler bilde (widgeten viser plassholder):');
     for (const m of missing) console.log(`  - ${m}`);
   }
-  console.log(`\n${downloaded.length} av ${data.models.length} bilder lastet ned.`);
+  console.log(`\n${downloaded.length} lastet ned, ${skipped.length} hoppet over, ${missing.length} mangler.`);
   if (missing.length) process.exitCode = 1;
 }
 
