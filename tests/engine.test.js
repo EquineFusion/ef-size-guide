@@ -28,7 +28,7 @@ function summary(result) {
 const forModel = (result, modelId) => result.recommendations.find((r) => r.modelId === modelId);
 
 // ---------------------------------------------------------------------------
-// Mandatory cases from STEG1-BUILD-PROMPT.md
+// Mandatory cases from the step 1 build brief
 // ---------------------------------------------------------------------------
 
 test('#1 11,8 × 11,0 cm → four models, three with alternative', () => {

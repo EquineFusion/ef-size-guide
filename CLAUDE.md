@@ -35,7 +35,8 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
   `C:\Eqfu\Equine Fusion AS\Hovedmappe - Dokumenter\Sales & Marketing\Markedsføring\Markedsføring admin\Nettsiden\Size chart master chart\size-chart.xlsx`
   `build-data` finner den via `local.config.json` (`excelPath`, ikke i git – hver PC har sin sti; mal i `local.config.example.json`). Alternativt miljøvariabel `SIZE_CHART_XLSX`.
 - **Ikke i git/GitHub:** Excel-filer (interne notater i `avvik`) og kildemateriale (katalog-PDF, `Size chart TB.xlsx`). Fjernet fra hele git-historikken ved flyttingen.
-- **Kildemateriale og gammel prosjektmappe (arkiv):** `C:\Eqfu\OneDrive - Equine Fusion AS\Claude\Size guide og verktøy` – inneholder `source-material/` og full, uredigert historikk. Ikke jobb videre der.
+- **Kildemateriale og gammel prosjektmappe (arkiv):** `C:\Eqfu\OneDrive - Equine Fusion AS\Claude\Size guide og verktøy` – inneholder `source-material/`, `legacy/`, byggeoppdraget (`STEG1-BUILD-PROMPT.md`), `Prosjektinstruksjoner.md` og full, uredigert historikk. Ikke jobb videre der.
+- **GitHub:** `EquineFusion/ef-size-guide` (offentlig). Kun det som trengs for å kjøre, teste og vedlikeholde widgeten – interne filer over er fjernet fra hele historikken.
 
 ## Mappestruktur
 ```
@@ -56,8 +57,8 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
 /docs/webflow-embed.md       Hvordan widgeten legges inn i Webflow
 /docs/data-guide.md          Hvordan Excel-filen vedlikeholdes
 /docs/analytics.md           GA4-events og oppsett i GA4
-/legacy/                     Gammel kalkulator (kun referanse)
-(source-material/ med katalog-PDF og Size chart TB.xlsx ligger i arkivmappen i OneDrive – se «Plassering»)
+(Ikke i repoet – ligger i arkivmappen i OneDrive, se «Plassering»: source-material/ med katalog-PDF og
+ Size chart TB.xlsx, legacy/ med gammel kalkulator, STEG1-BUILD-PROMPT.md og Prosjektinstruksjoner.md.)
 ```
 
 ## Datamodell (Excel)
@@ -162,7 +163,7 @@ Equine Fusion bruker **Google Analytics (GA4)**. Widgeten sender events via `gta
 Enhetsbytte og reload/tilbake-knapp telles ikke (unngår dobbelttelling).
 Analytics-logikk ligger i `src/analytics.js` (rene funksjoner, testet) og kalles fra widget-laget, **aldri fra `engine.js`**. Widgeten må fungere selv om analytics mangler/blokkeres. Ingen personopplysninger i events.
 
-## Kjente feil i gammel kalkulator (`/legacy`) – skal ikke gjentas
+## Kjente feil i gammel kalkulator (koden ligger i arkivmappen, `legacy/`) – skal ikke gjentas
 - Sjekket kun maks bredde, ikke min → smal hov kunne få for vid boot.
 - `location.reload()` ved bytte tilbake til cm.
 - Leste data fra Webflow-DOM → knakk ved designendringer.
@@ -202,7 +203,7 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [x] Produktbilder i `/assets/images/` og `image_url` i Excel (Trailblazer beskåret uten prismerke, 29 kB).
 - [x] Knappefarge = EF-blå fra eqfusion.com.
 - [x] Koble GA4-events på widgeten (fase 5). Gjenstår: registrere custom dimensions i GA4 og teste i DebugView når widgeten er i Webflow (`docs/analytics.md`).
-- [x] Bygg steg 1 i Claude Code etter `STEG1-BUILD-PROMPT.md` (fase 0–6 ferdig 23.09.26).
+- [x] Bygg steg 1 i Claude Code etter byggeoppdraget `STEG1-BUILD-PROMPT.md` (i arkivmappen; fase 0–6 ferdig 23.09.26).
 - [x] GitHub-organisasjon opprettet av Sven Erik.
 - [x] Flytt kode ut av OneDrive + Excel til felles OneDrive-mappe (23.09.26, se «Plassering»).
 - [ ] Slett/arkiver gammel prosjektmappe i OneDrive når Sven Erik har bekreftet at alt virker (inkl. den gamle kopien av Excel-filen, så ingen redigerer feil fil).

@@ -12,7 +12,7 @@ import { resolveExcelPath } from '../scripts/build-data.mjs';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('required folders exist', () => {
-  for (const dir of ['data', 'scripts', 'src', 'assets/images', 'demo', 'tests', 'docs', 'legacy']) {
+  for (const dir of ['data', 'scripts', 'src', 'assets/images', 'demo', 'tests', 'docs']) {
     assert.ok(fs.existsSync(path.join(root, dir)), `missing folder: ${dir}`);
   }
 });

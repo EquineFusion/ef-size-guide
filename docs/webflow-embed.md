@@ -19,11 +19,11 @@ GitHub-repo (offentlig)  ──►  jsDelivr (gratis CDN)  ──►  Webflow-si
 
 ## 1. Første gang: GitHub-repo
 
-1. Opprett repoet i Equine Fusions GitHub-organisasjon, f.eks. `ef-size-guide`, **Public**.
+1. Repoet: `https://github.com/EquineFusion/ef-size-guide` (**Public**).
 2. Push prosjektet (uten `data/size-chart.xlsx`, `source-material/`, `node_modules/`, `dist/`).
 3. Lag første versjon: `git tag v1.0.0` og `git push --tags`.
 4. Sjekk i nettleseren at filen finnes:
-   `https://cdn.jsdelivr.net/gh/<ORG>/ef-size-guide@v1.0.0/src/widget.js`
+   `https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.0.0/src/widget.js`
 
 ## 2. Legg inn i Webflow (på staging først)
 
@@ -33,12 +33,11 @@ GitHub-repo (offentlig)  ──►  jsDelivr (gratis CDN)  ──►  Webflow-si
 ```html
 <div id="ef-size-guide"></div>
 <script type="module">
-  import { mount } from 'https://cdn.jsdelivr.net/gh/<ORG>/ef-size-guide@v1.0.0/src/widget.js';
+  import { mount } from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.0.0/src/widget.js';
   mount(document.getElementById('ef-size-guide'));
 </script>
 ```
 
-Bytt `<ORG>` med navnet på GitHub-organisasjonen.
 
 3. **Publiser kun til staging** (`*.webflow.io`) – ikke eqfusion.com.
 4. Test på staging:
