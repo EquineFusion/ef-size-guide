@@ -23,7 +23,7 @@ function model(overrides = {}) {
 function size(overrides = {}) {
   return {
     model_id: 'alpha', size_label: '7 Slim', size: '7', variant: 'slim',
-    length_min_mm: 66, length_max_mm: 75, width_min_mm: null, width_max_mm: 60,
+    length_min_mm: 66, length_max_mm: 75, width_min_mm: 51, width_max_mm: 60,
     active: true, source: 'test', ...overrides,
   };
 }
@@ -33,14 +33,15 @@ function baseSizes() {
   return [
     size(),
     size({ size_label: '7', variant: 'regular', width_min_mm: 61, width_max_mm: 70 }),
-    size({ size_label: '8 Slim', size: '8', length_min_mm: 76, length_max_mm: 85, width_max_mm: 70 }),
+    size({ size_label: '8 Slim', size: '8', length_min_mm: 76, length_max_mm: 85, width_min_mm: 61, width_max_mm: 70 }),
     size({ size_label: '8', size: '8', variant: 'regular', length_min_mm: 76, length_max_mm: 85, width_min_mm: 71, width_max_mm: 80 }),
   ];
 }
 
 function baseSettings() {
   return {
-    tolerance_mm: 2, wide_hoof_model: 'alpha', wide_hoof_max_extra_length_mm: 10, fresh_trim_add_mm: 4,
+    tolerance_mm: 2, wide_hoof_model: 'alpha', wide_hoof_max_extra_length_mm: 10,
+    narrow_hoof_model: 'alpha', narrow_hoof_max_below_mm: 20, fresh_trim_add_mm: 4,
     measure_guide_url: 'https://example.com/measure', dealer_finder_url: 'https://example.com/dealers',
     data_version: '2026-01-01',
   };
@@ -86,10 +87,16 @@ test('valid workbook builds without errors or warnings', () => {
   assert.equal(data.sizes.length, 4);
 });
 
-test('empty width_min_mm becomes null (no lower limit)', () => {
+test('width_min_mm is included in the output', () => {
   const { data } = buildData(makeWorkbook());
-  assert.equal(data.sizes[0].width_min_mm, null);
+  assert.equal(data.sizes[0].width_min_mm, 51);
   assert.equal(data.sizes[1].width_min_mm, 61);
+});
+
+test('error: empty width_min_mm (required for all sizes since 23.09.26)', () => {
+  const sizes = baseSizes();
+  sizes[0].width_min_mm = null;
+  expectError({ sizes }, '«width_min_mm» mangler');
 });
 
 test('size is always a string, also when Excel stores it as a number', () => {
@@ -216,9 +223,9 @@ test('error: Slim and Regular in the same size overlap in width', () => {
   expectError({ sizes }, 'overlapper i bredde');
 });
 
-test('error: Regular without width_min overlaps Slim', () => {
+test('error: Slim wider than Regular in the same size overlaps', () => {
   const sizes = baseSizes();
-  sizes[1].width_min_mm = null;
+  sizes[0].width_max_mm = 65; // Slim 51–65 overlaps Regular 61–70
   expectError({ sizes }, 'overlapper i bredde');
 });
 
@@ -237,6 +244,13 @@ test('no error: inactive rows are not checked for overlap', () => {
 
 test('error: wide_hoof_model does not exist', () => {
   expectError({ settings: { ...baseSettings(), wide_hoof_model: 'ultra' } }, 'wide_hoof_model «ultra»');
+});
+
+test('error: narrow_hoof_model does not exist, narrow_hoof_max_below_mm missing', () => {
+  expectError({ settings: { ...baseSettings(), narrow_hoof_model: 'ghost' } }, 'narrow_hoof_model «ghost»');
+  const settings = baseSettings();
+  delete settings.narrow_hoof_max_below_mm;
+  expectError({ settings }, '«narrow_hoof_max_below_mm» mangler');
 });
 
 test('error: wide_hoof_model refers to an inactive model', () => {

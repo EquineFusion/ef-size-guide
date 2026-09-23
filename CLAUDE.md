@@ -54,11 +54,11 @@ Alle mål lagres i **millimeter som heltall** internt (unngår avrundingsfeil). 
 
 **Ark `models`:** `model_id`, `name`, `use_case` (fra katalogens «Recommended for»), `sold_as` (`single`/`pair`), `product_url`, `image_url`, `active`, `sort_order`, `source`
 
-**Ark `sizes`:** `model_id`, `size_label` (f.eks. «12 Slim»), `size` (tekst: «12», «14.5»), `variant` (`slim`/`regular`), `length_min_mm`, `length_max_mm`, `width_min_mm` (**tom = ingen nedre grense**), `width_max_mm`, `active`, `source`
+**Ark `sizes`:** `model_id`, `size_label` (f.eks. «12 Slim»), `size` (tekst: «12», «14.5»), `variant` (`slim`/`regular`), `length_min_mm`, `length_max_mm`, `width_min_mm` (**påkrevd for alle rader** – vedtatt 23.09.26), `width_max_mm`, `active`, `source`
 
 Slim/Regular er **varianter innen samme modell**, ikke egne modeller.
 
-**Ark `settings`:** `tolerance_mm` (2 mm – kun øvre ende av intervallet, se anbefalingslogikk), `wide_hoof_model` (`ultra` – modell for brede hover), `wide_hoof_max_extra_length_mm` (10 mm – se regel 5b), `fresh_trim_add_mm` (4 mm iflg. katalog), `measure_guide_url`, `dealer_finder_url`, `data_version`
+**Ark `settings`:** `tolerance_mm` (2 mm – kun øvre ende av intervallet, se anbefalingslogikk), `wide_hoof_model` (`ultra` – modell for brede hover), `wide_hoof_max_extra_length_mm` (10 mm – se regel 5b), `narrow_hoof_model` (`ultra`), `narrow_hoof_max_below_mm` (20 mm – se regel 5c), `fresh_trim_add_mm` (4 mm iflg. katalog), `measure_guide_url`, `dealer_finder_url`, `data_version`
 
 **Ark `avvik`:** Funn i kildedata som må avklares. Build-scriptet ignorerer arket, men data går ikke live før kritiske avvik er lukket.
 
@@ -66,7 +66,7 @@ Slim/Regular er **varianter innen samme modell**, ikke egne modeller.
 
 ### Datakilder
 - Trailblazer: `source-material/Size chart TB.xlsx` – **bekreftet riktig**, katalogen er feil (Regular finnes i 9–16 inkl. 14.5). Slim maks bredde = Regular min − 1 (ingen hull i bredde).
-- Active, Ultra, Trekking: `source-material/EquineFusion_katalog_08.09.26_v2_web.pdf` s.37, 39, 40. Katalogen oppgir kun maks bredde («Up to X»). Regular min bredde = Slim maks + 1 (vedtatt). Slim har ingen min bredde.
+- Active, Ultra, Trekking: `source-material/EquineFusion_katalog_08.09.26_v2_web.pdf` s.37, 39, 40. Katalogen oppgir kun maks bredde («Up to X»). Regular min bredde = Slim maks + 1 (vedtatt). **Slim min bredde = Regular min − 10** (vedtatt 23.09.26, samme oppbygging som Trailblazer – f.eks. Active 14 Slim 121–130 mm).
 - **Prinsipp for alle modeller:** Slim og Regular overlapper aldri i bredde – det finnes alltid kun én variant som passer innen en størrelse.
 
 Nye modeller legges til **kun i Excel** – aldri i koden.
@@ -80,7 +80,7 @@ Input: `{ length, width, unit }`. Output: strukturert objekt – **ingen tekst/H
 
 1. Normaliser input: godta komma og punktum som desimal (`12,5`), cm og tommer (desimal `5.25` og brøk `5 1/4`). Konverter til mm.
 2. Valider: tomt, ikke-tall, negativt eller urealistisk (utenfor 40–250 mm) → feilkode (ikke `alert()`). Gyldig input utenfor alle størrelser er **ikke** en feil, men `no_match`.
-3. For hver aktiv modell: finn størrelser der `length_min ≤ L ≤ length_max` **og** `width_min ≤ W ≤ width_max` (tom `width_min` = ingen nedre grense).
+3. For hver aktiv modell: finn størrelser der `length_min ≤ L ≤ length_max` **og** `width_min ≤ W ≤ width_max`.
    - Slim og Regular overlapper ikke (se datakilder). Build-scriptet skal gi feil hvis de gjør det.
    - Intervallene har 1 mm hull (75 → 76 mm). Mål mellom to **lengde**-intervaller (f.eks. 75,5 mm) skal håndteres som «mellom størrelser», ikke «ingen treff».
    - **Bredde** mellom Slim maks og Regular min (f.eks. 110,5 mm) er større enn Slim maks → **Regular**, uten råd (vedtatt 23.09.26).
@@ -93,7 +93,8 @@ Input: `{ length, width, unit }`. Output: strukturert objekt – **ingen tekst/H
    - Lengde som havner i et 1 mm-hull mellom to størrelser (f.eks. 75,5 mm) → behandles som nær øvre grense av størrelsen under.
 5b. **Bred hov:** Lengden treffer en størrelse, men bredden er større enn Regular maks for den størrelsen (og ingen annen modell passer) → anbefal `wide_hoof_model` (Ultra) i **minste størrelse der bredden passer** (sjekk størrelse for størrelse, Slim før Regular), med `warning: outside_size_chart`. Ingen «nær grensen»-alternativ i dette tilfellet.
    - **Maks lengdeoverskudd:** Størrelsens `length_min_mm` kan være maks `wide_hoof_max_extra_length_mm` (10 mm) større enn hovens lengde. Ellers → `no_match` (vedtatt 23.09.26 – hindrer at en liten, bred hov får en altfor lang boot, f.eks. 70 × 80 mm → Ultra 10). Widgeten viser tydelig advarsel om at målene er utenfor størrelsestabellen, med lenke til forhandler for rådgivning. Modellen hentes fra `settings` – aldri hardkodet.
-6. **Ingen modell passer** (heller ikke via regel 5b) → returner `no_match`. Widgeten viser: **«We do not currently have any models that fit your size.»** + lenke til målguide og forhandler. Ingen «nærmeste størrelse» vises.
+5c. **Smal hov** (vedtatt 23.09.26): Ingen vanlig treff, og hoven er smalere enn Slim min → anbefal `narrow_hoof_model` (Ultra) i størrelsen der **lengden** passer, Slim-varianten, med `warning: outside_size_chart` og `outsideReason: 'narrow'`. Kun hvis hoven er maks `narrow_hoof_max_below_mm` (20 mm) smalere enn Ultra-størrelsens Slim min. Mer enn det, eller lengden passer ingen Ultra-størrelse → `no_match`. Widgeten viser egen advarsel («narrower than our size chart … may work … contact a dealer»).
+6. **Ingen modell passer** (heller ikke via regel 5b/5c) → returner `no_match`. Widgeten viser: **«We do not currently have any models that fit your size.»** + lenke til målguide og forhandler. Ingen «nærmeste størrelse» vises.
 
 Motoren skal være deterministisk og 100 % testdekket på grensetilfeller (nøyaktig på min/maks, rett utenfor, tommer-brøk, komma-desimal).
 

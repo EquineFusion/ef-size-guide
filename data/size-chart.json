@@ -1,10 +1,12 @@
 {
-  "generatedAt": "2026-09-23T11:43:31.480Z",
+  "generatedAt": "2026-09-23T12:41:44.997Z",
   "dataVersion": "2026-09-23",
   "settings": {
     "tolerance_mm": 2,
     "wide_hoof_model": "ultra",
     "wide_hoof_max_extra_length_mm": 10,
+    "narrow_hoof_model": "ultra",
+    "narrow_hoof_max_below_mm": 20,
     "fresh_trim_add_mm": 4,
     "measure_guide_url": "https://www.eqfusion.com/how-to-measure-for-equine-fusion-jogging-shoes",
     "dealer_finder_url": "https://www.eqfusion.com/dealers"
@@ -235,7 +237,7 @@
       "variant": "slim",
       "length_min_mm": 66,
       "length_max_mm": 75,
-      "width_min_mm": null,
+      "width_min_mm": 51,
       "width_max_mm": 60
     },
     {
@@ -255,7 +257,7 @@
       "variant": "slim",
       "length_min_mm": 76,
       "length_max_mm": 85,
-      "width_min_mm": null,
+      "width_min_mm": 61,
       "width_max_mm": 70
     },
     {
@@ -275,7 +277,7 @@
       "variant": "slim",
       "length_min_mm": 86,
       "length_max_mm": 95,
-      "width_min_mm": null,
+      "width_min_mm": 71,
       "width_max_mm": 80
     },
     {
@@ -295,7 +297,7 @@
       "variant": "slim",
       "length_min_mm": 96,
       "length_max_mm": 105,
-      "width_min_mm": null,
+      "width_min_mm": 81,
       "width_max_mm": 90
     },
     {
@@ -315,7 +317,7 @@
       "variant": "slim",
       "length_min_mm": 106,
       "length_max_mm": 115,
-      "width_min_mm": null,
+      "width_min_mm": 91,
       "width_max_mm": 100
     },
     {
@@ -335,7 +337,7 @@
       "variant": "slim",
       "length_min_mm": 116,
       "length_max_mm": 125,
-      "width_min_mm": null,
+      "width_min_mm": 101,
       "width_max_mm": 110
     },
     {
@@ -355,7 +357,7 @@
       "variant": "slim",
       "length_min_mm": 126,
       "length_max_mm": 135,
-      "width_min_mm": null,
+      "width_min_mm": 111,
       "width_max_mm": 120
     },
     {
@@ -375,7 +377,7 @@
       "variant": "slim",
       "length_min_mm": 136,
       "length_max_mm": 145,
-      "width_min_mm": null,
+      "width_min_mm": 121,
       "width_max_mm": 130
     },
     {
@@ -395,7 +397,7 @@
       "variant": "slim",
       "length_min_mm": 146,
       "length_max_mm": 155,
-      "width_min_mm": null,
+      "width_min_mm": 131,
       "width_max_mm": 140
     },
     {
@@ -415,7 +417,7 @@
       "variant": "slim",
       "length_min_mm": 156,
       "length_max_mm": 165,
-      "width_min_mm": null,
+      "width_min_mm": 141,
       "width_max_mm": 150
     },
     {
@@ -435,7 +437,7 @@
       "variant": "slim",
       "length_min_mm": 91,
       "length_max_mm": 100,
-      "width_min_mm": null,
+      "width_min_mm": 76,
       "width_max_mm": 85
     },
     {
@@ -455,7 +457,7 @@
       "variant": "slim",
       "length_min_mm": 101,
       "length_max_mm": 110,
-      "width_min_mm": null,
+      "width_min_mm": 86,
       "width_max_mm": 95
     },
     {
@@ -475,7 +477,7 @@
       "variant": "slim",
       "length_min_mm": 111,
       "length_max_mm": 120,
-      "width_min_mm": null,
+      "width_min_mm": 96,
       "width_max_mm": 105
     },
     {
@@ -495,7 +497,7 @@
       "variant": "slim",
       "length_min_mm": 121,
       "length_max_mm": 130,
-      "width_min_mm": null,
+      "width_min_mm": 106,
       "width_max_mm": 115
     },
     {
@@ -515,7 +517,7 @@
       "variant": "slim",
       "length_min_mm": 131,
       "length_max_mm": 140,
-      "width_min_mm": null,
+      "width_min_mm": 116,
       "width_max_mm": 125
     },
     {
@@ -535,7 +537,7 @@
       "variant": "slim",
       "length_min_mm": 141,
       "length_max_mm": 150,
-      "width_min_mm": null,
+      "width_min_mm": 126,
       "width_max_mm": 135
     },
     {
@@ -555,7 +557,7 @@
       "variant": "slim",
       "length_min_mm": 151,
       "length_max_mm": 160,
-      "width_min_mm": null,
+      "width_min_mm": 136,
       "width_max_mm": 145
     },
     {
@@ -575,7 +577,7 @@
       "variant": "slim",
       "length_min_mm": 66,
       "length_max_mm": 75,
-      "width_min_mm": null,
+      "width_min_mm": 51,
       "width_max_mm": 60
     },
     {
@@ -595,7 +597,7 @@
       "variant": "slim",
       "length_min_mm": 76,
       "length_max_mm": 85,
-      "width_min_mm": null,
+      "width_min_mm": 61,
       "width_max_mm": 70
     },
     {
@@ -615,7 +617,7 @@
       "variant": "slim",
       "length_min_mm": 86,
       "length_max_mm": 95,
-      "width_min_mm": null,
+      "width_min_mm": 71,
       "width_max_mm": 80
     },
     {
@@ -635,7 +637,7 @@
       "variant": "slim",
       "length_min_mm": 96,
       "length_max_mm": 105,
-      "width_min_mm": null,
+      "width_min_mm": 81,
       "width_max_mm": 90
     },
     {
@@ -655,7 +657,7 @@
       "variant": "slim",
       "length_min_mm": 106,
       "length_max_mm": 115,
-      "width_min_mm": null,
+      "width_min_mm": 91,
       "width_max_mm": 100
     },
     {
@@ -675,7 +677,7 @@
       "variant": "slim",
       "length_min_mm": 116,
       "length_max_mm": 125,
-      "width_min_mm": null,
+      "width_min_mm": 101,
       "width_max_mm": 110
     },
     {
@@ -695,7 +697,7 @@
       "variant": "slim",
       "length_min_mm": 126,
       "length_max_mm": 135,
-      "width_min_mm": null,
+      "width_min_mm": 111,
       "width_max_mm": 120
     },
     {
@@ -715,7 +717,7 @@
       "variant": "slim",
       "length_min_mm": 136,
       "length_max_mm": 145,
-      "width_min_mm": null,
+      "width_min_mm": 121,
       "width_max_mm": 130
     },
     {
@@ -735,7 +737,7 @@
       "variant": "slim",
       "length_min_mm": 146,
       "length_max_mm": 155,
-      "width_min_mm": null,
+      "width_min_mm": 131,
       "width_max_mm": 140
     },
     {
@@ -755,7 +757,7 @@
       "variant": "slim",
       "length_min_mm": 156,
       "length_max_mm": 165,
-      "width_min_mm": null,
+      "width_min_mm": 141,
       "width_max_mm": 150
     },
     {

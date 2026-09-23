@@ -67,9 +67,14 @@ export const strings = {
   useCaseLabel: 'Recommended for:',
   soldAs: { single: 'Sold individually', pair: 'Sold in pairs' },
   nearLimit: (size) => `Near the upper limit – consider size ${size} if the hoof is freshly trimmed.`,
-  outsideChart: (model) =>
-    `Your measurements are outside our size chart. Based on the width, we suggest the ${model}, ` +
-    'which has the most adaptable upper. Please contact a dealer for advice before ordering.',
+  outsideChart: {
+    wide: (model) =>
+      `Your measurements are outside our size chart. Based on the width, we suggest the ${model}, ` +
+      'which has the most adaptable upper. Please contact a dealer for advice before ordering.',
+    narrow: (model) =>
+      `The hoof is narrower than our size chart. Based on the length, the ${model} may work, ` +
+      'as it has the most adaptable upper. Please contact a dealer for advice before ordering.',
+  },
   viewProduct: 'View product',
   findDealer: 'Find a dealer',
   noMatch: 'We do not currently have any models that fit your size.',
@@ -283,7 +288,8 @@ export async function mount(element, options = {}) {
     ];
 
     if (rec.warning === 'outside_size_chart') {
-      body.push(el('div', { class: 'efsg-warning', role: 'note' }, strings.outsideChart(model.name)));
+      const text = strings.outsideChart[rec.outsideReason] || strings.outsideChart.wide;
+      body.push(el('div', { class: 'efsg-warning', role: 'note' }, text(model.name)));
     }
     if (rec.alternative) {
       const alt = strings.sizeName(rec.alternative.sizeLabel, rec.alternative.variant);

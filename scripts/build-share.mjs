@@ -111,6 +111,7 @@ ${read('src/widget.css')}
     <button type="button" class="example" data-l="11.8" data-w="11.0" data-u="cm">11.8 × 11.0 cm</button>
     <button type="button" class="example" data-l="7.55" data-w="6.5" data-u="cm">7.55 × 6.5 cm</button>
     <button type="button" class="example" data-l="11.8" data-w="12.4" data-u="cm">Wide hoof 11.8 × 12.4 cm</button>
+    <button type="button" class="example" data-l="14" data-w="11" data-u="cm">Narrow hoof 14 × 11 cm</button>
     <button type="button" class="example" data-l="17" data-w="15" data-u="cm">No match 17 × 15 cm</button>
     <button type="button" class="example" data-l="4 5/8" data-w="4 1/4" data-u="in">4 5/8 × 4 1/4 in</button>
   </div>

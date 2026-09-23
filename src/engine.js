@@ -25,6 +25,7 @@
 //       modelId, sizeLabel, size, variant,                       // e.g. 'active', '12 Slim', '12', 'slim'
 //       advice: [] | ['near_upper_limit'],   // only given together with an alternative
 //       warning: null | 'outside_size_chart',
+//       outsideReason: null | 'wide' | 'narrow',  // why the hoof is outside the size chart
 //       betweenSizes: boolean,     // length fell in the 1 mm gap between two sizes
 //       alternative: null | {
 //         sizeLabel, size, variant,
@@ -42,6 +43,9 @@
 //   - A width in the 1 mm step between Slim max and Regular min (e.g. 110.5) is Regular.
 //   - Wide-hoof rule: only if the suggested size's length_min is at most
 //     settings.wide_hoof_max_extra_length_mm longer than the hoof; otherwise no_match.
+//   - Narrow-hoof rule (5c): narrower than the size chart → settings.narrow_hoof_model
+//     in the size where the length fits (Slim), if the hoof is at most
+//     settings.narrow_hoof_max_below_mm narrower than that Slim's width_min; otherwise no_match.
 // ---------------------------------------------------------------------------
 
 import { normaliseUnit, parseMeasurement } from './units.js';
@@ -90,6 +94,12 @@ export function recommend(input, data) {
   const wide = findWideHoofMatch(chart, data.settings, lengthMm, widthMm);
   if (wide) {
     return { status: 'ok', errors: [], input: inputOut, recommendations: [wide] };
+  }
+
+  // 5c. Narrow hoof: narrower than the narrowest variant for its length.
+  const narrow = findNarrowHoofMatch(chart, data.settings, lengthMm, widthMm);
+  if (narrow) {
+    return { status: 'ok', errors: [], input: inputOut, recommendations: [narrow] };
   }
 
   // 6. Nothing fits.
@@ -205,6 +215,7 @@ function findMatch(model, lengthMm, widthMm, tolerance) {
         variant: variant.variant,
         advice: alternative ? ['near_upper_limit'] : [],
         warning: null,
+        outsideReason: null,
         betweenSizes: length.inGap,
         alternative,
       };
@@ -249,11 +260,41 @@ function findWideHoofMatch(chart, settings, lengthMm, widthMm) {
       variant: variant.variant,
       advice: [],
       warning: 'outside_size_chart',
+      outsideReason: 'wide',
       betweenSizes: false,
       alternative: null,
     };
   }
   return null;
+}
+
+// Rule 5c: the hoof is narrower than the size chart. Recommend the narrow-hoof model
+// (from settings) in the size where the LENGTH fits, in its narrowest variant (Slim),
+// but only if the hoof is at most settings.narrow_hoof_max_below_mm narrower than
+// that variant's width_min. Further outside the chart → no match.
+function findNarrowHoofMatch(chart, settings, lengthMm, widthMm) {
+  const model = chart.find((m) => m.modelId === settings.narrow_hoof_model);
+  if (!model) return null;
+
+  const g = model.groups.findIndex((_, i) => fitsLength(lengthMm, model.groups, i).fits);
+  if (g < 0) return null;
+
+  const narrowest = model.groups[g].variants[0];
+  const min = narrowest.width_min_mm;
+  if (min === null || widthMm >= min) return null; // not narrower than this size
+  if (Math.round((min - widthMm) * 10) / 10 > settings.narrow_hoof_max_below_mm) return null;
+
+  return {
+    modelId: model.modelId,
+    sizeLabel: narrowest.size_label,
+    size: narrowest.size,
+    variant: narrowest.variant,
+    advice: [],
+    warning: 'outside_size_chart',
+    outsideReason: 'narrow',
+    betweenSizes: fitsLength(lengthMm, model.groups, g).inGap,
+    alternative: null,
+  };
 }
 
 function toAlternative(row, reason) {

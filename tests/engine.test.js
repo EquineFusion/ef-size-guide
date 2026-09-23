@@ -125,17 +125,18 @@ test('#9 every size matches exactly on its min and max length/width', () => {
 });
 
 test('#9 1 mm over max length → next size up in the same model', () => {
-  // Active 12 Slim: 116–125. 126 → Active 13 Slim.
-  assert.equal(forModel(run(125, 100), 'active').sizeLabel, '12 Slim');
-  assert.equal(forModel(run(126, 100), 'active').sizeLabel, '13 Slim');
+  // Active 12 Regular: length 116–125, width 111–120. 126 → Active 13 Slim (width 111–120).
+  assert.equal(forModel(run(125, 115), 'active').sizeLabel, '12');
+  assert.equal(forModel(run(126, 115), 'active').sizeLabel, '13 Slim');
   // Trailblazer 12: 114–121. 122 → 13.
   assert.equal(forModel(run(121, 118), 'trailblazer').sizeLabel, '12');
   assert.equal(forModel(run(122, 122), 'trailblazer').sizeLabel, '13');
 });
 
 test('#9 0,5 mm over max length → gap rule: same size, near limit, alt next size', () => {
-  const rec = forModel(run('125,5', 100), 'active');
-  assert.equal(rec.sizeLabel, '12 Slim');
+  // Active 12 Regular (width 111–120), width 115 fits 13 Slim (111–120).
+  const rec = forModel(run('125,5', 115), 'active');
+  assert.equal(rec.sizeLabel, '12');
   assert.equal(rec.betweenSizes, true);
   assert.deepEqual(rec.advice, ['near_upper_limit']);
   assert.deepEqual(rec.alternative, { sizeLabel: '13 Slim', size: '13', variant: 'slim', reason: 'length' });
@@ -166,15 +167,17 @@ test('width just over Slim max is Regular also for Trailblazer (89 → 90)', () 
 // ---------------------------------------------------------------------------
 
 test('min width is checked: narrow hoof does not get Trailblazer Slim below its min', () => {
-  // Trailblazer 12 Slim: width 104–113. Width 100 is too narrow for Trailblazer 12.
-  const result = run(118, 100);
+  // Trailblazer 12 Slim: width 104–113. Width 102 is too narrow for Trailblazer 12.
+  const result = run(118, 102);
   assert.equal(forModel(result, 'trailblazer'), undefined);
-  assert.equal(forModel(result, 'active').sizeLabel, '12 Slim');
+  assert.equal(forModel(result, 'active').sizeLabel, '12 Slim'); // Active 12 Slim: 101–110
 });
 
-test('Slim without width_min has no lower limit', () => {
-  // Active 7 Slim: up to 60 mm, no minimum.
-  assert.equal(forModel(run(70, 40), 'active').sizeLabel, '7 Slim');
+test('Slim min width (Regular min − 10) is checked for Active/Trekking/Ultra', () => {
+  // Active 14 Slim: 121–130. 140 × 121 fits, 140 × 120 does not (decision 23.09.26).
+  assert.equal(forModel(run(140, 121), 'active').sizeLabel, '14 Slim');
+  assert.equal(forModel(run(140, 120), 'active'), undefined);
+  assert.equal(forModel(run(140, 120), 'trekking'), undefined);
 });
 
 test('only models that fit are returned, in sort_order', () => {
@@ -202,8 +205,8 @@ test('near limit: exactly on max → alternative', () => {
 });
 
 test('near limit: lower end never gives an alternative', () => {
-  // Active 12 Slim: 116–125, width up to 110. On min length, low width.
-  const rec = forModel(run(116, 90), 'active');
+  // Active 12 Slim: 116–125, width 101–110. On min length and min width.
+  const rec = forModel(run(116, 101), 'active');
   assert.deepEqual(rec.advice, []);
   assert.equal(rec.alternative, null);
 });
@@ -216,10 +219,18 @@ test('near max length: alternative uses the variant where the width fits', () =>
 });
 
 test('near max length takes priority over near max width', () => {
-  // Active 12 Slim, both length (125) and width (110) on max → next size up.
-  const rec = forModel(run(125, 110), 'active');
+  // Trailblazer 12 Slim (114–121, 104–113): length 121 and width 113 both on max.
+  // Next size 13 Slim (112–121) fits width 113 → length alternative.
+  const rec = forModel(run(121, 113), 'trailblazer');
   assert.equal(rec.alternative.reason, 'length');
   assert.equal(rec.alternative.sizeLabel, '13 Slim');
+});
+
+test('near max length without a fitting next size falls back to Slim → Regular', () => {
+  // Active 12 Slim (101–110) at length 125 and width 110. 13 Slim needs width ≥ 111,
+  // so no length alternative; Slim is on max width → 12 Regular.
+  const rec = forModel(run(125, 110), 'active');
+  assert.deepEqual(rec.alternative, { sizeLabel: '12', size: '12', variant: 'regular', reason: 'width' });
 });
 
 test('near max width on Regular → just the size that fits, no advice (decision 23.09.26)', () => {
@@ -240,7 +251,7 @@ test('near max length, but width does not fit the next size → no alternative, 
 });
 
 test('near max on the largest size → just the size that fits, no advice', () => {
-  const rec = forModel(run(165, 140), 'active'); // Active 16 Slim, length max 165
+  const rec = forModel(run(165, 145), 'active'); // Active 16 Slim (141–150), length max 165
   assert.equal(rec.sizeLabel, '16 Slim');
   assert.deepEqual(rec.advice, []);
   assert.equal(rec.alternative, null);
@@ -303,6 +314,57 @@ test('wide hoof: width too big even for the largest Ultra → no_match', () => {
   assert.equal(run(160, 170).status, 'no_match');
 });
 
+// ---------------------------------------------------------------------------
+// Rule 5c: narrow hoof (decision 23.09.26)
+// ---------------------------------------------------------------------------
+
+test('narrow hoof: Ultra fits normally when the width is within Ultra Slim', () => {
+  // 140 × 120: too narrow for Active/Trekking 14 Slim (121–130), but Ultra 14 Slim is 116–125.
+  assert.deepEqual(summary(run(140, 120)), ['ultra 14 Slim']);
+});
+
+test('narrow hoof: narrower than the chart → Ultra Slim where the length fits, with warning', () => {
+  // 140 × 110: Ultra 14 Slim min 116 → 6 mm narrower.
+  const result = run(140, 110);
+  assert.deepEqual(summary(result), ['ultra 14 Slim [outside_size_chart]']);
+  const rec = result.recommendations[0];
+  assert.equal(rec.outsideReason, 'narrow');
+  assert.equal(rec.alternative, null);
+  assert.deepEqual(rec.advice, []);
+});
+
+test('narrow hoof: at most 20 mm narrower (exactly 20 allowed, 21 → no_match)', () => {
+  assert.deepEqual(summary(run(140, 96)), ['ultra 14 Slim [outside_size_chart]']); // 116 − 96 = 20
+  assert.equal(run(140, 95).status, 'no_match'); // 21 mm
+});
+
+test('narrow hoof: length outside the Ultra range → no_match', () => {
+  // 80 × 55: too narrow for Active/Trekking 8 Slim (61–70); Ultra starts at 91 mm.
+  assert.equal(run(80, 55).status, 'no_match');
+});
+
+test('narrow hoof: length in the 1 mm gap between Ultra sizes', () => {
+  // 100,5 → Ultra 10 (91–100, gap to 101). Ultra 10 Slim min 76 → 70 is 6 mm narrower.
+  const rec = run('100,5', 70).recommendations[0];
+  assert.equal(rec.sizeLabel, '10 Slim');
+  assert.equal(rec.outsideReason, 'narrow');
+  assert.equal(rec.betweenSizes, true);
+});
+
+test('narrow hoof: model and max distance come from settings', () => {
+  const custom = structuredClone(data);
+  custom.settings.narrow_hoof_max_below_mm = 5;
+  assert.equal(run(140, 110, 'mm', custom).status, 'no_match'); // 6 > 5
+  custom.settings.narrow_hoof_max_below_mm = 20;
+  custom.settings.narrow_hoof_model = 'active';
+  // Active 14 Slim (136–145, min 121) → 11 mm narrower.
+  assert.deepEqual(summary(run(140, 110, 'mm', custom)), ['active 14 Slim [outside_size_chart]']);
+});
+
+test('wide hoof sets outsideReason "wide"', () => {
+  assert.equal(run(118, 124).recommendations[0].outsideReason, 'wide');
+});
+
 test('wide hoof rule is not used when another model fits', () => {
   // Active 12 max width 120, but Trailblazer 12 Regular (114–121) fits 121.
   const result = run(118, 121);
@@ -327,7 +389,7 @@ test('output has the documented shape', () => {
   for (const r of result.recommendations) {
     assert.deepEqual(
       Object.keys(r).sort(),
-      ['advice', 'alternative', 'betweenSizes', 'modelId', 'size', 'sizeLabel', 'variant', 'warning']
+      ['advice', 'alternative', 'betweenSizes', 'modelId', 'outsideReason', 'size', 'sizeLabel', 'variant', 'warning']
     );
   }
 });
