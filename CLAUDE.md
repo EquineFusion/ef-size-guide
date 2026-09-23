@@ -29,11 +29,18 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
 - **Excel er eneste kilde til sannhet** for size chart. JSON genereres – **redigeres aldri for hånd**.
 - Build-scriptet stopper med tydelig feilmelding hvis data er ugyldig. Ugyldig data skal aldri nå kunden.
 - Hosting: kode + JSON i GitHub-repo, servert via **jsDelivr med versjons-tag** (f.eks. `@v1.2.0`) – aldri `@main` i produksjon. Webflow laster widgeten via custom code embed. Se `docs/webflow-embed.md`.
-- **Planlagt flytting (vedtatt 23.09.26, etter fase 6):** Koden flyttes ut av OneDrive til `C:\Prosjekter\ef-size-guide` + **offentlig** repo i Equine Fusions GitHub-organisasjon (jsDelivr krever offentlig repo). Excel-filen flyttes til en **felles OneDrive/SharePoint-mappe** (flere skal redigere), og `build-data` leser den derfra. Excel og `source-material/` legges **ikke** i GitHub (interne notater i `avvik`, stor PDF). Grunn: git og OneDrive-synk i samme mappe gir konfliktrisiko; Excel åpnes via SharePoint med AutoSave.
+### Plassering (flyttet 23.09.26)
+- **Kode:** `C:\Prosjekter\ef-size-guide` (utenfor OneDrive – git og OneDrive-synk i samme mappe gir konfliktrisiko). Skal ut som **offentlig** repo i Equine Fusions GitHub-organisasjon (jsDelivr krever offentlig repo).
+- **Excel (master):** felles SharePoint/OneDrive-mappe, redigeres av flere direkte i Excel:
+  `C:\Eqfu\Equine Fusion AS\Hovedmappe - Dokumenter\Sales & Marketing\Markedsføring\Markedsføring admin\Nettsiden\Size chart master chart\size-chart.xlsx`
+  `build-data` finner den via `local.config.json` (`excelPath`, ikke i git – hver PC har sin sti; mal i `local.config.example.json`). Alternativt miljøvariabel `SIZE_CHART_XLSX`.
+- **Ikke i git/GitHub:** Excel-filer (interne notater i `avvik`) og kildemateriale (katalog-PDF, `Size chart TB.xlsx`). Fjernet fra hele git-historikken ved flyttingen.
+- **Kildemateriale og gammel prosjektmappe (arkiv):** `C:\Eqfu\OneDrive - Equine Fusion AS\Claude\Size guide og verktøy` – inneholder `source-material/` og full, uredigert historikk. Ikke jobb videre der.
 
 ## Mappestruktur
 ```
-/data/size-chart.xlsx        Master-data (redigeres av Equine Fusion)
+(Excel-master ligger i felles OneDrive-mappe – se «Plassering»)
+/local.config.json           Sti til Excel på denne PC-en (ikke i git; mal: local.config.example.json)
 /data/size-chart.json        Generert – ikke rediger
 /scripts/build-data.mjs      Excel → JSON + validering
 /src/engine.js               Anbefalingsmotor (ren funksjon, delt med steg 2)
@@ -49,8 +56,8 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
 /docs/webflow-embed.md       Hvordan widgeten legges inn i Webflow
 /docs/data-guide.md          Hvordan Excel-filen vedlikeholdes
 /docs/analytics.md           GA4-events og oppsett i GA4
-/source-material/            PDF-er/produktark med opprinnelige mål (kun referanse)
 /legacy/                     Gammel kalkulator (kun referanse)
+(source-material/ med katalog-PDF og Size chart TB.xlsx ligger i arkivmappen i OneDrive – se «Plassering»)
 ```
 
 ## Datamodell (Excel)
@@ -197,7 +204,8 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [x] Koble GA4-events på widgeten (fase 5). Gjenstår: registrere custom dimensions i GA4 og teste i DebugView når widgeten er i Webflow (`docs/analytics.md`).
 - [x] Bygg steg 1 i Claude Code etter `STEG1-BUILD-PROMPT.md` (fase 0–6 ferdig 23.09.26).
 - [x] GitHub-organisasjon opprettet av Sven Erik.
-- [ ] Flytt kode ut av OneDrive + Excel til felles OneDrive-mappe (se Arkitektur).
+- [x] Flytt kode ut av OneDrive + Excel til felles OneDrive-mappe (23.09.26, se «Plassering»).
+- [ ] Slett/arkiver gammel prosjektmappe i OneDrive når Sven Erik har bekreftet at alt virker (inkl. den gamle kopien av Excel-filen, så ingen redigerer feil fil).
 - [ ] Opprett offentlig GitHub-repo i organisasjonen, push, første versjons-tag.
 - [ ] Test i Webflow på staging (webflow.io) → GA4 DebugView → publiser på eqfusion.com. Fjern gammel kalkulator.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).

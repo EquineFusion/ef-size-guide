@@ -3,9 +3,11 @@
 For deg som skal endre mål, legge til en størrelse eller en ny modell.
 Du trenger ikke kunne programmering for å redigere – bare for å publisere (se steg 3).
 
-> **Merk:** Excel-filen ligger i dag i `data/size-chart.xlsx` i prosjektmappen.
-> Den skal flyttes til en felles OneDrive-mappe (se «Planlagt flytting» i `CLAUDE.md`).
-> Oppskriften er den samme – bare plasseringen av filen endres.
+> **Hvor ligger filen?** I den felles mappen på SharePoint/OneDrive:
+> *Hovedmappe - Dokumenter › Sales & Marketing › Markedsføring › Markedsføring admin › Nettsiden › Size chart master chart* → `size-chart.xlsx`
+>
+> Alle med tilgang kan åpne og redigere den direkte i Excel (PC eller nettleser).
+> Det finnes ingen annen kopi du skal redigere.
 
 ---
 
@@ -84,13 +86,18 @@ Ikke endre kolonnenavnene i rad 1.
 
 ## 2. Kjør byggescriptet
 
-Åpne terminal i prosjektmappen og kjør:
+Åpne terminal i prosjektmappen (`C:\Prosjekter\ef-size-guide`) og kjør:
 
 ```
 npm run build-data
 ```
 
-**Lukk Excel-filen på PC-en først** hvis den er åpen (den kan være låst).
+Scriptet leser Excel-filen direkte fra den felles OneDrive-mappen (stien står i `local.config.json`).
+Første linje viser hvilken fil som leses: `Leser: C:\Eqfu\Equine Fusion AS\…\size-chart.xlsx`.
+
+- Vent til OneDrive har synkronisert siste endring (grønn hake på filen) før du kjører.
+- Står det «Fant ikke Excel-filen»: sjekk at mappen er synkronisert på denne PC-en, og at stien i
+  `local.config.json` er riktig (mal: `local.config.example.json`).
 
 ### Når det går bra
 ```
