@@ -1,5 +1,10 @@
 node_modules/
 dist/
+
+# Master Excel lives in the shared OneDrive folder, not in git (see local.config.example.json)
+local.config.json
+*.xlsx
+source-material/
 .DS_Store
 Thumbs.db
 ~$*.xlsx

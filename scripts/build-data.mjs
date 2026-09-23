@@ -1,5 +1,11 @@
 // build-data.mjs
-// Converts the master size chart (data/size-chart.xlsx) into data/size-chart.json.
+// Converts the master size chart (Excel) into data/size-chart.json.
+//
+// Where is the Excel file? (first match wins)
+//   1. Environment variable SIZE_CHART_XLSX
+//   2. "excelPath" in local.config.json in the project folder (not in git – each PC has
+//      its own path to the shared OneDrive folder; see local.config.example.json)
+//   3. data/size-chart.xlsx in the project folder
 //
 // - Reads the sheets `models`, `sizes` and `settings`. `README` and `avvik` are ignored.
 // - Validates everything. Any ERROR stops the build and no JSON is written,
@@ -397,18 +403,48 @@ export function buildData(workbook, { generatedAt = new Date().toISOString() } =
 // Command line entry point
 // ---------------------------------------------------------------------------
 
+const projectRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+/**
+ * Find the master Excel file (see top of this file).
+ * @returns {{ path: string, source: string }}  source explains where the path came from
+ */
+export function resolveExcelPath(root = projectRoot, env = process.env) {
+  if (env.SIZE_CHART_XLSX) return { path: env.SIZE_CHART_XLSX, source: 'SIZE_CHART_XLSX' };
+  const configFile = path.join(root, 'local.config.json');
+  if (fs.existsSync(configFile)) {
+    const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+    if (config.excelPath) return { path: config.excelPath, source: 'local.config.json' };
+  }
+  return { path: path.join(root, 'data', 'size-chart.xlsx'), source: 'standard' };
+}
+
 function main() {
-  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const inputPath = path.join(root, 'data', 'size-chart.xlsx');
-  const outputPath = path.join(root, 'data', 'size-chart.json');
+  const outputPath = path.join(projectRoot, 'data', 'size-chart.json');
+
+  let excel;
+  try {
+    excel = resolveExcelPath();
+  } catch (err) {
+    console.error(`FEIL: local.config.json kan ikke leses (ugyldig JSON?).\n${err.message}`);
+    process.exit(1);
+  }
+
+  if (!fs.existsSync(excel.path)) {
+    console.error(`FEIL: Fant ikke Excel-filen:\n  ${excel.path}\n(stien kommer fra ${excel.source})`);
+    console.error('Sjekk at OneDrive-mappen er synkronisert på denne PC-en, og at stien i local.config.json er riktig.');
+    console.error('Mal: local.config.example.json');
+    process.exit(1);
+  }
 
   let workbook;
   try {
-    workbook = XLSX.read(fs.readFileSync(inputPath));
+    workbook = XLSX.read(fs.readFileSync(excel.path));
   } catch (err) {
-    console.error(`FEIL: Kunne ikke lese ${inputPath}. Er filen åpen i Excel eller låst av OneDrive?\n${err.message}`);
+    console.error(`FEIL: Kunne ikke lese ${excel.path}. Er filen låst av OneDrive, eller ikke lastet ned ennå?\n${err.message}`);
     process.exit(1);
   }
+  console.log(`Leser: ${excel.path}`);
 
   const { data, errors, warnings } = buildData(workbook);
 
