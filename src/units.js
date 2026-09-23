@@ -56,6 +56,22 @@ export function parseMeasurement(value, unit) {
   return { ok: true, mm };
 }
 
+/**
+ * Format millimetres for display in a unit (numbers only, no unit text).
+ *   cm: one decimal ("11.8"), or two when needed ("7.55" = 75.5 mm),
+ *   mm: up to one decimal ("75.5"), in: up to two decimals ("4.65", "5").
+ * Uses a decimal point; parseMeasurement accepts it back.
+ */
+export function formatMeasurement(mm, unit) {
+  if (unit === 'cm') {
+    const tenths = Math.round(mm * 10); // mm are already rounded to 0.1 mm
+    return tenths % 10 === 0 ? (tenths / 100).toFixed(1) : (tenths / 100).toFixed(2);
+  }
+  if (unit === 'mm') return String(Math.round(mm * 10) / 10);
+  if (unit === 'in') return String(Math.round((mm / 25.4) * 100) / 100);
+  return String(mm);
+}
+
 // Convert text to a whole number of tenths of a millimetre, or null if not a number.
 function toTenthsOfMm(text, unit) {
   const factor = TENTHS_PER_UNIT[unit];

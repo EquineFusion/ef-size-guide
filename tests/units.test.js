@@ -1,7 +1,7 @@
 // Tests for src/units.js – input parsing and unit conversion.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseMeasurement, normaliseUnit } from '../src/units.js';
+import { parseMeasurement, normaliseUnit, formatMeasurement } from '../src/units.js';
 
 const mm = (value, unit) => {
   const result = parseMeasurement(value, unit);
@@ -76,6 +76,29 @@ test('error: outside realistic range 40–250 mm', () => {
   assert.equal(mm('40', 'mm'), 40);
   assert.equal(mm('250', 'mm'), 250);
   assert.equal(mm('25', 'cm'), 250);
+});
+
+test('formatMeasurement', () => {
+  assert.equal(formatMeasurement(118, 'cm'), '11.8');
+  assert.equal(formatMeasurement(110, 'cm'), '11.0');
+  assert.equal(formatMeasurement(75.5, 'cm'), '7.55'); // not rounded to 7.5
+  assert.equal(formatMeasurement(117.5, 'cm'), '11.75');
+  assert.equal(formatMeasurement(75.5, 'mm'), '75.5');
+  assert.equal(formatMeasurement(118, 'mm'), '118');
+  assert.equal(formatMeasurement(118, 'in'), '4.65');
+  assert.equal(formatMeasurement(127, 'in'), '5');
+});
+
+test('formatMeasurement → parseMeasurement round trip stays within 0.13 mm', () => {
+  // 41–249 mm: at the exact 40/250 limits, rounding to 0.01" could step just outside the range.
+  for (let mm = 41; mm <= 249; mm += 0.1) {
+    const exact = Math.round(mm * 10) / 10;
+    for (const unit of ['cm', 'mm', 'in']) {
+      const back = parseMeasurement(formatMeasurement(exact, unit), unit);
+      assert.ok(back.ok, `${exact} ${unit}`);
+      assert.ok(Math.abs(back.mm - exact) <= 0.13, `${exact} mm → ${unit} → ${back.mm} mm`);
+    }
+  }
 });
 
 test('normaliseUnit', () => {

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Size Guide – Test</title>
+  <style>
+    /* Page styles for the test page only – the widget has its own CSS (src/widget.css). */
+    body {
+      margin: 0;
+      background: #fafafa;
+      color: #1a1a1a;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.9rem 16px;
+      background: #111;
+      color: #fff;
+    }
+    .brand { font-weight: 800; letter-spacing: 0.02em; }
+    .test-badge {
+      padding: 0.15rem 0.5rem;
+      border: 1px solid #f0a020;
+      border-radius: 4px;
+      color: #f0a020;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    main { max-width: 800px; margin: 0 auto; padding: 24px 16px 48px; }
+    .widget-box { padding: 24px 20px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    details.debug { margin-top: 2rem; font-size: 0.85rem; }
+    details.debug summary { cursor: pointer; font-weight: 700; color: #5c5c5c; min-height: 44px; display: flex; align-items: center; }
+    details.debug h3 { margin: 1rem 0 0.3rem; font-size: 0.9rem; }
+    details.debug pre {
+      margin: 0;
+      padding: 0.75rem;
+      max-height: 420px;
+      overflow: auto;
+      background: #1e1e1e;
+      color: #e6e6e6;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <span class="brand">EQUINE FUSION</span>
+    <span class="test-badge">TEST VERSION</span>
+  </header>
+
+  <main>
+    <div class="widget-box">
+      <div id="size-guide"></div>
+    </div>
+
+    <!-- Debug panel: only on this test page, not part of the widget. -->
+    <details class="debug">
+      <summary>Debug</summary>
+      <h3>Engine output</h3>
+      <pre id="debug-result">(no calculation yet)</pre>
+      <h3>Last analytics event</h3>
+      <pre id="debug-analytics">(analytics is added in phase 5)</pre>
+      <h3>Data</h3>
+      <pre id="debug-data">–</pre>
+    </details>
+  </main>
+
+  <script type="module">
+    import { mount } from '../src/widget.js';
+
+    const debugResult = document.getElementById('debug-result');
+
+    mount(document.getElementById('size-guide'), {
+      onResult: (result) => {
+        debugResult.textContent = JSON.stringify(result, null, 2);
+      },
+    });
+
+    // Show which data version the page is using.
+    fetch('../data/size-chart.json')
+      .then((res) => res.json())
+      .then((data) => {
+        document.getElementById('debug-data').textContent =
+          `dataVersion: ${data.dataVersion}\ngeneratedAt: ${data.generatedAt}\n` +
+          `${data.models.length} models, ${data.sizes.length} sizes`;
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>

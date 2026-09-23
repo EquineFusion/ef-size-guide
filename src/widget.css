@@ -1,0 +1,472 @@
+/* widget.css – Equine Fusion size guide
+ * Everything is scoped under .efsg-root and all classes are prefixed efsg-,
+ * so the widget does not affect (or get affected by) the Webflow site styles.
+ * Mobile first. Layout adapts to the widget's own width (container queries),
+ * not the screen, because it may sit in a narrow column on the website.
+ *
+ * To match the EF brand, change the variables below.
+ */
+
+.efsg-root {
+  --efsg-accent: #c8102e;          /* buttons, focus, selected unit */
+  --efsg-accent-hover: #a50d26;
+  --efsg-accent-contrast: #ffffff; /* text on accent */
+  --efsg-text: #1a1a1a;
+  --efsg-muted: #5c5c5c;
+  --efsg-border: #d9d9d9;
+  --efsg-surface: #ffffff;
+  --efsg-surface-alt: #f5f5f4;
+  --efsg-error: #b3261e;
+  --efsg-warning-bg: #fff4e0;
+  --efsg-warning-border: #f0a020;
+  --efsg-warning-text: #5a3b00;
+  --efsg-radius: 10px;
+  --efsg-touch: 48px;              /* min. height of touch targets (≥ 44 px) */
+
+  container-type: inline-size;
+  box-sizing: border-box;
+  max-width: 760px;
+  margin: 0 auto;
+  color: var(--efsg-text);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.efsg-root *,
+.efsg-root *::before,
+.efsg-root *::after {
+  box-sizing: border-box;
+}
+
+/* Neutralise common site styles on the elements we use. */
+.efsg-root h2,
+.efsg-root h3,
+.efsg-root h4,
+.efsg-root p,
+.efsg-root fieldset,
+.efsg-root legend {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.efsg-root :focus-visible {
+  outline: 3px solid var(--efsg-accent);
+  outline-offset: 2px;
+}
+
+.efsg-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Header ---------- */
+
+.efsg-root .efsg-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--efsg-text);
+}
+
+.efsg-root .efsg-intro {
+  margin-top: 0.4rem;
+  color: var(--efsg-muted);
+}
+
+/* ---------- Form ---------- */
+
+.efsg-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+/* Unit switch (cm / inches) as a segmented control */
+.efsg-root .efsg-units {
+  display: inline-flex;
+  justify-self: start;
+  border: 1px solid var(--efsg-border);
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--efsg-surface-alt);
+}
+
+.efsg-unit {
+  position: relative;
+  cursor: pointer;
+}
+
+.efsg-unit-input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.efsg-unit-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--efsg-muted);
+}
+
+.efsg-unit-input:checked + .efsg-unit-text {
+  background: var(--efsg-accent);
+  color: var(--efsg-accent-contrast);
+}
+
+.efsg-unit-input:focus-visible + .efsg-unit-text {
+  outline: 3px solid var(--efsg-accent);
+  outline-offset: 2px;
+}
+
+.efsg-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@container (max-width: 300px) {
+  .efsg-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.efsg-root .efsg-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.efsg-input-wrap {
+  position: relative;
+}
+
+.efsg-root .efsg-input {
+  display: block;
+  width: 100%;
+  min-height: var(--efsg-touch);
+  margin: 0;
+  padding: 0.5rem 3.2rem 0.5rem 0.9rem;
+  border: 1px solid var(--efsg-border);
+  border-radius: var(--efsg-radius);
+  background: var(--efsg-surface);
+  color: var(--efsg-text);
+  font: inherit;
+  font-size: 1.125rem; /* ≥ 16px avoids zoom on iOS */
+  box-shadow: none;
+}
+
+.efsg-root .efsg-input:focus {
+  border-color: var(--efsg-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--efsg-accent) 25%, transparent);
+}
+
+.efsg-root .efsg-input[aria-invalid='true'] {
+  border-color: var(--efsg-error);
+}
+
+.efsg-input-unit {
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--efsg-muted);
+  pointer-events: none;
+}
+
+.efsg-root .efsg-error {
+  min-height: 0;
+  margin-top: 0.3rem;
+  color: var(--efsg-error);
+  font-size: 0.9rem;
+}
+
+.efsg-root .efsg-error:empty {
+  display: none;
+}
+
+/* ---------- Buttons and links ---------- */
+
+.efsg-root .efsg-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--efsg-touch);
+  margin: 0;
+  padding: 0.6rem 1.25rem;
+  border: 2px solid transparent;
+  border-radius: var(--efsg-radius);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.efsg-root .efsg-button-primary {
+  background: var(--efsg-accent);
+  color: var(--efsg-accent-contrast);
+}
+
+.efsg-root .efsg-button-primary:hover {
+  background: var(--efsg-accent-hover);
+}
+
+.efsg-root .efsg-button-primary[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.efsg-root .efsg-button-secondary {
+  background: var(--efsg-surface);
+  border-color: var(--efsg-text);
+  color: var(--efsg-text);
+}
+
+.efsg-root .efsg-button-secondary:hover {
+  background: var(--efsg-surface-alt);
+}
+
+.efsg-root .efsg-button-ghost {
+  background: transparent;
+  color: var(--efsg-text);
+  border-color: var(--efsg-border);
+  font-weight: 600;
+}
+
+.efsg-form > .efsg-button-primary {
+  width: 100%;
+  font-size: 1.1rem;
+}
+
+.efsg-root .efsg-link {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--efsg-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@container (min-width: 520px) {
+  .efsg-form > .efsg-button-primary {
+    width: auto;
+    justify-self: start;
+    min-width: 220px;
+  }
+}
+
+/* ---------- Status ---------- */
+
+.efsg-root .efsg-status {
+  margin-top: 1rem;
+  color: var(--efsg-muted);
+}
+
+.efsg-root .efsg-status-error {
+  color: var(--efsg-error);
+}
+
+/* ---------- Results ---------- */
+
+.efsg-results:not(:empty) {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--efsg-border);
+  display: grid;
+  gap: 1rem;
+}
+
+.efsg-root .efsg-hoof {
+  color: var(--efsg-muted);
+  font-size: 0.95rem;
+}
+
+.efsg-root .efsg-results-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.efsg-root .efsg-results-hint {
+  margin-top: -0.6rem;
+  color: var(--efsg-muted);
+}
+
+/* Card: image on top (narrow), image left / text right (wide) */
+.efsg-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 1px solid var(--efsg-border);
+  border-radius: var(--efsg-radius);
+  background: var(--efsg-surface);
+  overflow: hidden;
+}
+
+.efsg-card-warning {
+  border-color: var(--efsg-warning-border);
+}
+
+@container (min-width: 520px) {
+  .efsg-card {
+    grid-template-columns: 200px 1fr;
+  }
+}
+
+.efsg-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  background: #fff;
+  padding: 0.75rem;
+}
+
+@container (min-width: 520px) {
+  .efsg-image {
+    aspect-ratio: auto;
+    min-height: 180px;
+  }
+}
+
+.efsg-root .efsg-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  margin: 0;
+  border: 0;
+}
+
+.efsg-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 140px;
+  border-radius: calc(var(--efsg-radius) - 4px);
+  background: var(--efsg-surface-alt);
+  color: #b5b5b5;
+}
+
+.efsg-card-body {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding: 1rem 1.1rem 1.2rem;
+}
+
+.efsg-root .efsg-model {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.efsg-root .efsg-size {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--efsg-text);
+}
+
+.efsg-root .efsg-alternative {
+  padding: 0.6rem 0.8rem;
+  border-left: 4px solid var(--efsg-accent);
+  background: var(--efsg-surface-alt);
+  font-size: 0.95rem;
+}
+
+.efsg-root .efsg-warning {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--efsg-warning-border);
+  border-left-width: 6px;
+  border-radius: 6px;
+  background: var(--efsg-warning-bg);
+  color: var(--efsg-warning-text);
+  font-size: 0.95rem;
+}
+
+.efsg-root .efsg-use-case,
+.efsg-root .efsg-sold-as {
+  font-size: 0.95rem;
+  color: var(--efsg-muted);
+}
+
+.efsg-root .efsg-use-case .efsg-label {
+  display: inline;
+  margin: 0;
+  font-size: inherit;
+  color: var(--efsg-text);
+}
+
+.efsg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.efsg-actions .efsg-button {
+  flex: 1 1 160px;
+}
+
+/* No match */
+.efsg-no-match {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1.1rem;
+  border: 1px solid var(--efsg-border);
+  border-radius: var(--efsg-radius);
+  background: var(--efsg-surface-alt);
+}
+
+.efsg-root .efsg-no-match-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* Share */
+.efsg-share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.efsg-root .efsg-share-feedback {
+  color: var(--efsg-muted);
+  font-size: 0.95rem;
+}
+
+.efsg-root .efsg-share-url {
+  width: min(100%, 420px);
+  min-height: 40px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--efsg-border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.9rem;
+}
