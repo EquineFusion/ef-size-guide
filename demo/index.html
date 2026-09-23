@@ -67,8 +67,8 @@
       <summary>Debug</summary>
       <h3>Engine output</h3>
       <pre id="debug-result">(no calculation yet)</pre>
-      <h3>Last analytics event</h3>
-      <pre id="debug-analytics">(analytics is added in phase 5)</pre>
+      <h3>Analytics events (newest first – shown here instead of being sent to GA4)</h3>
+      <pre id="debug-analytics">(no events yet)</pre>
       <h3>Data</h3>
       <pre id="debug-data">–</pre>
     </details>
@@ -78,10 +78,17 @@
     import { mount } from '../src/widget.js';
 
     const debugResult = document.getElementById('debug-result');
+    const debugAnalytics = document.getElementById('debug-analytics');
+    const events = [];
 
     mount(document.getElementById('size-guide'), {
       onResult: (result) => {
         debugResult.textContent = JSON.stringify(result, null, 2);
+      },
+      // The test page has no GA4 (no gtag), so events are only shown here.
+      onAnalytics: (name, params) => {
+        events.unshift(`${new Date().toLocaleTimeString()}  ${name}\n${JSON.stringify(params, null, 2)}`);
+        debugAnalytics.textContent = events.slice(0, 15).join('\n\n');
       },
     });
 

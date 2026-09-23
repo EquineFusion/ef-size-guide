@@ -39,6 +39,8 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
 /src/units.js                Enhetskonvertering og input-parsing
 /src/widget.js               UI + Webflow-embed
 /src/widget.css              Stil (prefikset, lekker ikke til Webflow)
+/src/analytics.js            GA4-events (brukes kun av widget.js)
+/scripts/build-share.mjs     Lager én selvstendig HTML-fil av testsiden (dist/share/) for deling
 /assets/images/              Produktbilder per modell (<model_id>.jpg/.png/.webp)
 /demo/index.html             Frittstående testside for widgeten
 /scripts/dev-server.mjs      Lokal server uten avhengigheter (også tilgjengelig på lokalt nett for test på mobil/nettbrett)
@@ -112,14 +114,15 @@ Motoren skal være deterministisk og 100 % testdekket på grensetilfeller (nøya
 - **Produktbilde ved siden av hver anbefaling** (fra `image_url`). Desktop: bilde til venstre, tekst til høyre. Mobil: bilde over tekst. Mangler bilde → nøytral plassholder, aldri ødelagt bilde. `alt`-tekst = modellnavn. `loading="lazy"`.
 
 ## Analytics
-Equine Fusion bruker **Google Analytics (GA4)**. Widgeten sender events via `gtag('event', …)` hvis `gtag` finnes på siden. Events (forslag):
-- `sizeguide_calculate` – lengde, bredde (mm), enhet, resultattype (`match`/`between`/`no_match`)
-- `sizeguide_result` – modell(er) og størrelse(r) anbefalt
+Equine Fusion bruker **Google Analytics (GA4)**. Widgeten sender events via `gtag('event', …)` hvis `gtag` finnes på siden (bygd i fase 5 – full liste med parametere og GA4-oppsett i `docs/analytics.md`):
+- `sizeguide_calculate` – lengde, bredde (hele mm), enhet, `result_type` (`match`/`between`/`outside_wide`/`outside_narrow`/`no_match`/`invalid_input`), `trigger` (`form`/`shared_link`)
+- `sizeguide_result` – én per anbefalt modell (modell, størrelse, alternativ, utenfor tabell)
 - `sizeguide_click_dealer`, `sizeguide_click_product`, `sizeguide_click_measure_guide`
-- `sizeguide_share` – delbar lenke kopiert
+- `sizeguide_share` – delbar lenke kopiert («Copy link» legger til `&src=share`)
 - `sizeguide_open_shared` – åpnet via delt lenke (distributør-bruk)
 
-Analytics-kall ligger i widget-laget, **aldri i `engine.js`**. Widgeten må fungere selv om analytics mangler/blokkeres. Ingen personopplysninger i events.
+Enhetsbytte og reload/tilbake-knapp telles ikke (unngår dobbelttelling).
+Analytics-logikk ligger i `src/analytics.js` (rene funksjoner, testet) og kalles fra widget-laget, **aldri fra `engine.js`**. Widgeten må fungere selv om analytics mangler/blokkeres. Ingen personopplysninger i events.
 
 ## Kjente feil i gammel kalkulator (`/legacy`) – skal ikke gjentas
 - Sjekket kun maks bredde, ikke min → smal hov kunne få for vid boot.
@@ -153,7 +156,7 @@ npm run dev           # Lokal testside med widgeten
 - [ ] Skriv råd-tekster for «nær grensen» og advarsel for brede hover.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
 - [ ] Opprett GitHub-repo.
-- [ ] Koble GA4-events på widgeten.
+- [x] Koble GA4-events på widgeten (fase 5). Gjenstår: registrere custom dimensions i GA4 og teste i DebugView når widgeten er i Webflow.
 - [ ] Produktbilder i `/assets/images/` og `image_url` i Excel.
 - [ ] Bygg steg 1 i Claude Code etter `STEG1-BUILD-PROMPT.md`.
 - [ ] Steg 2: velg metode for bildeanalyse.

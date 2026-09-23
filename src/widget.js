@@ -17,6 +17,8 @@
 //   updateUrl     keep ?l=&w=&u= in the address bar after each calculation (default: true)
 //   share         show the "Copy link" button (default: true)
 //   onResult      function(result) – called with the raw engine output (used by the debug panel)
+//   onAnalytics   function(name, params) – called with every analytics event (debug panel).
+//                 Events go to GA4 via window.gtag automatically if the page has it (see analytics.js).
 //
 // Rules for this file:
 //   - No dependencies. All customer-facing text is in `strings` below.
@@ -25,6 +27,7 @@
 
 import { recommend } from './engine.js';
 import { formatMeasurement, normaliseUnit, parseMeasurement } from './units.js';
+import { sendEvent, calculateEvent, resultEvents } from './analytics.js';
 
 // ---------------------------------------------------------------------------
 // Customer-facing text (English). Add other languages later by swapping this object.
@@ -103,6 +106,7 @@ export async function mount(element, options = {}) {
   const updateUrl = options.updateUrl !== false;
   const showShare = options.share !== false;
   const onResult = typeof options.onResult === 'function' ? options.onResult : () => {};
+  const track = (name, params) => sendEvent(name, params, options.onAnalytics);
 
   if (options.loadCss !== false) loadCss();
 
@@ -207,13 +211,21 @@ export async function mount(element, options = {}) {
   status.remove();
   submit.removeAttribute('disabled');
   measureLink.href = data.settings.measure_guide_url;
+  measureLink.addEventListener('click', () => track('sizeguide_click_measure_guide', { context: 'form' }));
 
   // --- Calculate --------------------------------------------------------------
-  function calculate() {
+  // `trigger` says why we calculate: 'form' or 'shared_link' are tracked in analytics;
+  // null (unit change, restoring from the address bar) is not, to avoid double counting.
+  function calculate({ trigger = null } = {}) {
     const input = { length: fields.length.input.value, width: fields.width.input.value, unit };
     const result = recommend(input, data);
     lastResult = result;
     onResult(result);
+
+    if (trigger) {
+      track('sizeguide_calculate', calculateEvent(result, trigger));
+      for (const params of resultEvents(result)) track('sizeguide_result', params);
+    }
 
     showFieldError(fields.length, null);
     showFieldError(fields.width, null);
@@ -235,7 +247,7 @@ export async function mount(element, options = {}) {
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    calculate();
+    calculate({ trigger: 'form' });
   });
 
   // --- Results ----------------------------------------------------------------
@@ -259,8 +271,16 @@ export async function mount(element, options = {}) {
           el('p', { class: 'efsg-no-match-title' }, strings.noMatch),
           el('p', {}, strings.noMatchHelp),
           el('div', { class: 'efsg-actions' }, [
-            el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.measure_guide_url }, strings.howToMeasure),
-            el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.dealer_finder_url }, strings.findDealer),
+            trackedLink(
+              el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.measure_guide_url }, strings.howToMeasure),
+              'sizeguide_click_measure_guide',
+              { context: 'no_match' }
+            ),
+            trackedLink(
+              el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.dealer_finder_url }, strings.findDealer),
+              'sizeguide_click_dealer',
+              { context: 'no_match', model: 'none', size: 'none' }
+            ),
           ]),
         ]),
         share
@@ -280,6 +300,12 @@ export async function mount(element, options = {}) {
     results.replaceChildren(...nodes.filter(Boolean));
   }
 
+  // Send an analytics event when the link is clicked (the link still works normally).
+  function trackedLink(link, eventName, params) {
+    link.addEventListener('click', () => track(eventName, params));
+    return link;
+  }
+
   function renderCard(rec) {
     const model = data.models.find((m) => m.model_id === rec.modelId);
     const body = [
@@ -296,12 +322,22 @@ export async function mount(element, options = {}) {
       body.push(el('p', { class: 'efsg-alternative' }, strings.nearLimit(alt)));
     }
 
+    const clickParams = { model: rec.modelId, size: rec.sizeLabel, outside_chart: rec.outsideReason || 'no' };
     body.push(
       el('p', { class: 'efsg-use-case' }, [el('span', { class: 'efsg-label' }, strings.useCaseLabel + ' '), model.use_case]),
       el('p', { class: 'efsg-sold-as' }, strings.soldAs[model.sold_as] || ''),
       el('div', { class: 'efsg-actions' }, [
-        model.product_url && el('a', { class: 'efsg-button efsg-button-primary', href: model.product_url }, strings.viewProduct),
-        el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.dealer_finder_url }, strings.findDealer),
+        model.product_url &&
+          trackedLink(
+            el('a', { class: 'efsg-button efsg-button-primary', href: model.product_url }, strings.viewProduct),
+            'sizeguide_click_product',
+            clickParams
+          ),
+        trackedLink(
+          el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.dealer_finder_url }, strings.findDealer),
+          'sizeguide_click_dealer',
+          { context: 'result', ...clickParams }
+        ),
       ])
     );
 
@@ -340,23 +376,32 @@ export async function mount(element, options = {}) {
       try {
         await navigator.clipboard.writeText(url);
         feedback.textContent = strings.linkCopied;
+        track('sizeguide_share', { method: 'clipboard' });
       } catch {
         // Clipboard blocked (e.g. not https): show the link so it can be copied by hand.
         const field = el('input', { class: 'efsg-share-url', readonly: '', value: url, 'aria-label': strings.copyManually });
         feedback.replaceChildren(strings.copyManually + ' ', field);
         field.select();
+        track('sizeguide_share', { method: 'manual' });
       }
     });
     return el('div', { class: 'efsg-share' }, [button, feedback]);
   }
 
-  // --- Shared link on page load (?l=…&w=…&u=…) ----------------------------------
+  // --- Measurements in the URL on page load (?l=…&w=…&u=…) ----------------------
+  // With src=share it was opened from a "Copy link" link → tracked as a shared link.
+  // Without it, it is a reload / back button / typed address → not tracked again.
   const params = readUrlParams();
   if (params) {
     setUnit(params.unit, { convert: false });
     fields.length.input.value = params.length;
     fields.width.input.value = params.width;
-    calculate();
+    if (params.fromShare) {
+      track('sizeguide_open_shared', { unit: params.unit });
+      calculate({ trigger: 'shared_link' });
+    } else {
+      calculate();
+    }
   }
 
   return { calculate };
@@ -455,29 +500,40 @@ function storeUnit(unit) {
 
 // --- URL parameters ---------------------------------------------------------------
 // ?l=11.8&w=11.0&u=cm   (u = cm | in | mm; mm values are shown in cm)
+// &src=share is added by "Copy link", so opening a shared link can be counted in analytics.
 function readUrlParams() {
   const params = new URLSearchParams(window.location.search);
   const length = params.get('l');
   const width = params.get('w');
   if (!length || !width) return null;
+  const fromShare = params.get('src') === 'share';
   const unit = normaliseUnit(params.get('u') || 'cm');
   if (unit === 'mm') {
     const toCm = (v) => {
       const n = Number(String(v).replace(',', '.'));
       return Number.isFinite(n) ? formatMeasurement(n, 'cm') : v;
     };
-    return { length: toCm(length), width: toCm(width), unit: 'cm' };
+    return { length: toCm(length), width: toCm(width), unit: 'cm', fromShare };
   }
   if (!UNITS.includes(unit)) return null;
-  return { length, width, unit };
+  return { length, width, unit, fromShare };
 }
 
-function shareUrl(input) {
+// Current page address with the measurements (without src=share).
+function measurementUrl(input) {
   const url = new URL(window.location.href);
   url.searchParams.set('l', input.length.trim().replace(',', '.'));
   url.searchParams.set('w', input.width.trim().replace(',', '.'));
   url.searchParams.set('u', input.unit);
+  url.searchParams.delete('src');
   url.hash = '';
+  return url;
+}
+
+// The link that "Copy link" copies.
+function shareUrl(input) {
+  const url = measurementUrl(input);
+  url.searchParams.set('src', 'share');
   return url.href;
 }
 
@@ -485,7 +541,7 @@ function shareUrl(input) {
 // restores the result and the address can be shared directly.
 function writeUrlParams(input) {
   try {
-    const url = new URL(shareUrl(input));
+    const url = measurementUrl(input);
     window.history.replaceState(window.history.state, '', url.href);
   } catch {
     /* ignore (e.g. sandboxed iframe) */

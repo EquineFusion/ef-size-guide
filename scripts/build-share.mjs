@@ -38,7 +38,7 @@ function stripModule(source) {
     .replace(/^import .*;\s*$/gm, '')
     .replace(/^export (?=(const|let|function|async function|class) )/gm, '');
 }
-const js = ['src/units.js', 'src/engine.js', 'src/widget.js'].map((f) => `// ---- ${f} ----\n${stripModule(read(f))}`).join('\n');
+const js = ['src/units.js', 'src/engine.js', 'src/analytics.js', 'src/widget.js'].map((f) => `// ---- ${f} ----\n${stripModule(read(f))}`).join('\n');
 
 // 3. The page. (The publishing skeleton adds <!doctype>, <head> and <body> itself.)
 const escapeForScript = (s) => s.replace(/<\/script/gi, '<\\/script');
@@ -91,6 +91,7 @@ details.debug pre {
   margin: 0.4rem 0 0; padding: 0.75rem; max-height: 420px; overflow: auto; background: #1e1e1e; color: #e6e6e6;
   border-radius: 8px; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word;
 }
+.debug-title { margin: 1rem 0 0; font-size: 0.85rem; color: var(--page-text); }
 .version { font-size: 0.75rem; color: var(--page-muted); }
 ${read('src/widget.css')}
 </style>
@@ -121,7 +122,10 @@ ${read('src/widget.css')}
   </div>
 
   <details class="debug">
-    <summary>Debug (engine output)</summary>
+    <summary>Debug (engine output and analytics events)</summary>
+    <h3 class="debug-title">Analytics events – newest first (not sent anywhere on this test page)</h3>
+    <pre id="debug-analytics">(no events yet)</pre>
+    <h3 class="debug-title">Engine output</h3>
     <pre id="debug-result">(no calculation yet)</pre>
   </details>
   <p class="version">${version}</p>
@@ -134,6 +138,8 @@ ${escapeForScript(js)}
 const SIZE_CHART = ${escapeForScript(JSON.stringify(data))};
 const container = document.getElementById('size-guide');
 const debug = document.getElementById('debug-result');
+const debugAnalytics = document.getElementById('debug-analytics');
+const events = [];
 
 mount(container, {
   data: SIZE_CHART,
@@ -141,6 +147,10 @@ mount(container, {
   updateUrl: false, // the shared page cannot use the address bar
   share: false,     // "Copy link" would copy the frame's address, not a usable link
   onResult: (result) => { debug.textContent = JSON.stringify(result, null, 2); },
+  onAnalytics: (name, params) => {
+    events.unshift(new Date().toLocaleTimeString() + '  ' + name + '\\n' + JSON.stringify(params, null, 2));
+    debugAnalytics.textContent = events.slice(0, 15).join('\\n\\n');
+  },
 });
 
 // Example buttons: fill in the form and calculate.
