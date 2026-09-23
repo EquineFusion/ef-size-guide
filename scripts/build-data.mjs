@@ -26,7 +26,9 @@ export const MM_MAX = 250;
 const MODEL_COLUMNS = ['model_id', 'name', 'use_case', 'sold_as', 'product_url', 'image_url', 'active', 'sort_order', 'source'];
 const SIZE_COLUMNS = ['model_id', 'size_label', 'size', 'variant', 'length_min_mm', 'length_max_mm', 'width_min_mm', 'width_max_mm', 'active', 'source'];
 const SETTINGS_COLUMNS = ['key', 'value'];
-const REQUIRED_SETTINGS = ['tolerance_mm', 'wide_hoof_model', 'fresh_trim_add_mm', 'measure_guide_url', 'dealer_finder_url', 'data_version'];
+const REQUIRED_SETTINGS = ['tolerance_mm', 'wide_hoof_model', 'wide_hoof_max_extra_length_mm', 'fresh_trim_add_mm', 'measure_guide_url', 'dealer_finder_url', 'data_version'];
+// Settings that must be a whole number of millimetres between 0 and 20.
+const MM_SETTINGS = ['tolerance_mm', 'wide_hoof_max_extra_length_mm', 'fresh_trim_add_mm'];
 
 // ---------------------------------------------------------------------------
 // Helpers for reading cells
@@ -226,7 +228,7 @@ function parseSettings(rows, errors) {
       errors.push(`Ark «settings»: innstillingen «${key}» mangler.`);
     }
   }
-  for (const key of ['tolerance_mm', 'fresh_trim_add_mm']) {
+  for (const key of MM_SETTINGS) {
     if (settings[key] === null || settings[key] === undefined) continue;
     const number = Number(settings[key]);
     if (!Number.isInteger(number) || number < 0 || number > 20) {
@@ -368,6 +370,7 @@ export function buildData(workbook, { generatedAt = new Date().toISOString() } =
     settings: {
       tolerance_mm: settings.tolerance_mm,
       wide_hoof_model: String(settings.wide_hoof_model),
+      wide_hoof_max_extra_length_mm: settings.wide_hoof_max_extra_length_mm,
       fresh_trim_add_mm: settings.fresh_trim_add_mm,
       measure_guide_url: settings.measure_guide_url,
       dealer_finder_url: settings.dealer_finder_url,

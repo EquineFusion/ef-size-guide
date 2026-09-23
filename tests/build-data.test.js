@@ -40,7 +40,7 @@ function baseSizes() {
 
 function baseSettings() {
   return {
-    tolerance_mm: 2, wide_hoof_model: 'alpha', fresh_trim_add_mm: 4,
+    tolerance_mm: 2, wide_hoof_model: 'alpha', wide_hoof_max_extra_length_mm: 10, fresh_trim_add_mm: 4,
     measure_guide_url: 'https://example.com/measure', dealer_finder_url: 'https://example.com/dealers',
     data_version: '2026-01-01',
   };
@@ -252,6 +252,13 @@ test('error: missing setting', () => {
 
 test('error: tolerance_mm not a whole number', () => {
   expectError({ settings: { ...baseSettings(), tolerance_mm: 2.5 } }, '«tolerance_mm»');
+});
+
+test('error: wide_hoof_max_extra_length_mm missing or invalid', () => {
+  const settings = baseSettings();
+  delete settings.wide_hoof_max_extra_length_mm;
+  expectError({ settings }, '«wide_hoof_max_extra_length_mm» mangler');
+  expectError({ settings: { ...baseSettings(), wide_hoof_max_extra_length_mm: 'ten' } }, '«wide_hoof_max_extra_length_mm»');
 });
 
 test('error: missing sheet', () => {

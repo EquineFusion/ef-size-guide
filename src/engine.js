@@ -23,9 +23,9 @@
 //     input: { lengthMm, widthMm, unit },                        // null values if invalid
 //     recommendations: [{                                        // empty unless status 'ok'
 //       modelId, sizeLabel, size, variant,                       // e.g. 'active', '12 Slim', '12', 'slim'
-//       advice: [] | ['near_upper_limit'],
+//       advice: [] | ['near_upper_limit'],   // only given together with an alternative
 //       warning: null | 'outside_size_chart',
-//       betweenSizes: boolean,     // measurement fell in a 1 mm gap between two ranges
+//       betweenSizes: boolean,     // length fell in the 1 mm gap between two sizes
 //       alternative: null | {
 //         sizeLabel, size, variant,
 //         reason: 'length' | 'width'   // which measurement was close to the upper limit
@@ -34,6 +34,14 @@
 //   }
 //
 // Recommendations are ordered like the models in the data (sort_order).
+//
+// Decisions (Sven Erik, 23.09.26) on top of the rules in CLAUDE.md:
+//   - "Near upper limit" is only reported when there is a real alternative:
+//     near max length → next size up; near max width on Slim → Regular in the same size.
+//     Regular near max width, or the largest size, gives just the size that fits.
+//   - A width in the 1 mm step between Slim max and Regular min (e.g. 110.5) is Regular.
+//   - Wide-hoof rule: only if the suggested size's length_min is at most
+//     settings.wide_hoof_max_extra_length_mm longer than the hoof; otherwise no_match.
 // ---------------------------------------------------------------------------
 
 import { normaliseUnit, parseMeasurement } from './units.js';
@@ -79,7 +87,7 @@ export function recommend(input, data) {
   }
 
   // 5b. Wide hoof: the length fits a size, but the hoof is wider than the widest variant.
-  const wide = findWideHoofMatch(chart, data.settings.wide_hoof_model, lengthMm, widthMm);
+  const wide = findWideHoofMatch(chart, data.settings, lengthMm, widthMm);
   if (wide) {
     return { status: 'ok', errors: [], input: inputOut, recommendations: [wide] };
   }
@@ -120,34 +128,36 @@ function buildChart(data) {
 // Range checks
 // ---------------------------------------------------------------------------
 
-// Does `value` fit the range [min, max]?
-// Ranges follow each other with a 1 mm step (e.g. 66–75, 76–85). A value in that
-// gap (75 < value < 76) belongs to the lower range and counts as "in gap".
-// `nextMin` is the minimum of the next range up (or null if there is none).
+// Does the length fit size number `index` in `groups`?
+// Sizes follow each other with a 1 mm step (e.g. 66–75, 76–85). A length in that
+// gap (75 < length < 76) belongs to the smaller size and counts as "in gap"
+// (treated as near its upper limit).
 // Returns { fits: boolean, inGap: boolean }.
-function fitsRange(value, min, max, nextMin) {
-  if (min !== null && value < min) return { fits: false, inGap: false };
-  if (value <= max) return { fits: true, inGap: false };
-  const adjacent = nextMin !== null && nextMin - max === 1;
-  if (adjacent && value < nextMin) return { fits: true, inGap: true };
+function fitsLength(lengthMm, groups, index) {
+  const { lengthMin, lengthMax } = groups[index];
+  const next = groups[index + 1];
+  if (lengthMm < lengthMin) return { fits: false, inGap: false };
+  if (lengthMm <= lengthMax) return { fits: true, inGap: false };
+  const adjacent = next && next.lengthMin - lengthMax === 1;
+  if (adjacent && lengthMm < next.lengthMin) return { fits: true, inGap: true };
   return { fits: false, inGap: false };
 }
 
-function fitsLength(lengthMm, groups, index) {
-  const group = groups[index];
-  const next = groups[index + 1];
-  return fitsRange(lengthMm, group.lengthMin, group.lengthMax, next ? next.lengthMin : null);
-}
-
+// Does the width fit variant number `index` in `variants` (narrowest first)?
+// Empty width_min = no lower limit. A width in the 1 mm step between Slim max and
+// Regular min (e.g. 110 < width < 111) is bigger than Slim max, so it counts as Regular.
 function fitsWidth(widthMm, variants, index) {
-  const variant = variants[index];
-  const wider = variants[index + 1];
-  return fitsRange(widthMm, variant.width_min_mm, variant.width_max_mm, wider ? wider.width_min_mm : null);
+  const { width_min_mm: min, width_max_mm: max } = variants[index];
+  const narrower = variants[index - 1];
+  if (widthMm > max) return false;
+  if (min === null || widthMm >= min) return true;
+  const adjacent = narrower && min - narrower.width_max_mm === 1;
+  return Boolean(adjacent && widthMm > narrower.width_max_mm);
 }
 
 // Index of the variant in `group` that fits the width, or -1.
 function findVariantForWidth(group, widthMm) {
-  return group.variants.findIndex((_, i) => fitsWidth(widthMm, group.variants, i).fits);
+  return group.variants.findIndex((_, i) => fitsWidth(widthMm, group.variants, i));
 }
 
 // Is `value` within `tolerance` mm of `max`? (Rounded to 0.1 mm to avoid floating point noise.)
@@ -169,12 +179,11 @@ function findMatch(model, lengthMm, widthMm, tolerance) {
 
     const group = groups[g];
     for (let v = 0; v < group.variants.length; v++) {
-      const width = fitsWidth(widthMm, group.variants, v);
-      if (!width.fits) continue;
+      if (!fitsWidth(widthMm, group.variants, v)) continue;
 
       const variant = group.variants[v];
       const nearLength = length.inGap || isNearMax(lengthMm, group.lengthMax, tolerance);
-      const nearWidth = width.inGap || isNearMax(widthMm, variant.width_max_mm, tolerance);
+      const nearWidth = isNearMax(widthMm, variant.width_max_mm, tolerance);
 
       let alternative = null;
       if (nearLength) {
@@ -182,17 +191,11 @@ function findMatch(model, lengthMm, widthMm, tolerance) {
         const next = groups[g + 1];
         const i = next ? findVariantForWidth(next, widthMm) : -1;
         if (i >= 0) alternative = toAlternative(next.variants[i], 'length');
-      } else if (nearWidth) {
-        // Next wider variant: Slim → Regular in the same size,
-        // Regular → next size up, in the variant where the width fits.
+      }
+      if (!alternative && nearWidth) {
+        // Slim → Regular in the same size. Regular near max width gets no alternative.
         const wider = group.variants[v + 1];
-        if (wider) {
-          alternative = toAlternative(wider, 'width');
-        } else {
-          const next = groups[g + 1];
-          const i = next ? findVariantForWidth(next, widthMm) : -1;
-          if (i >= 0) alternative = toAlternative(next.variants[i], 'width');
-        }
+        if (wider) alternative = toAlternative(wider, 'width');
       }
 
       return {
@@ -200,9 +203,9 @@ function findMatch(model, lengthMm, widthMm, tolerance) {
         sizeLabel: variant.size_label,
         size: variant.size,
         variant: variant.variant,
-        advice: nearLength || nearWidth ? ['near_upper_limit'] : [],
+        advice: alternative ? ['near_upper_limit'] : [],
         warning: null,
-        betweenSizes: length.inGap || width.inGap,
+        betweenSizes: length.inGap,
         alternative,
       };
     }
@@ -216,7 +219,11 @@ function findMatch(model, lengthMm, widthMm, tolerance) {
 // Rule 5b: the length fits a size in some model, but the hoof is wider than the
 // widest variant of that size. Recommend the wide-hoof model (from settings) in the
 // smallest size where the width fits (checked size by size, Slim before Regular).
-function findWideHoofMatch(chart, wideModelId, lengthMm, widthMm) {
+// That size must not be much longer than the hoof: its length_min may be at most
+// settings.wide_hoof_max_extra_length_mm above the hoof length, otherwise no match.
+function findWideHoofMatch(chart, settings, lengthMm, widthMm) {
+  const wideModelId = settings.wide_hoof_model;
+  const maxExtraLength = settings.wide_hoof_max_extra_length_mm;
   const tooWide = chart.some(({ groups }) =>
     groups.some((group, g) => {
       if (!fitsLength(lengthMm, groups, g).fits) return false;
@@ -232,6 +239,8 @@ function findWideHoofMatch(chart, wideModelId, lengthMm, widthMm) {
   for (const group of wideModel.groups) {
     const i = findVariantForWidth(group, widthMm);
     if (i < 0) continue;
+    // Larger sizes are only longer, so if this one is too long there is no match.
+    if (group.lengthMin - lengthMm > maxExtraLength) return null;
     const variant = group.variants[i];
     return {
       modelId: wideModel.modelId,

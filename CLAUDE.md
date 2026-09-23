@@ -58,7 +58,7 @@ Alle mål lagres i **millimeter som heltall** internt (unngår avrundingsfeil). 
 
 Slim/Regular er **varianter innen samme modell**, ikke egne modeller.
 
-**Ark `settings`:** `tolerance_mm` (2 mm – kun øvre ende av intervallet, se anbefalingslogikk), `wide_hoof_model` (`ultra` – modell for brede hover), `fresh_trim_add_mm` (4 mm iflg. katalog), `measure_guide_url`, `dealer_finder_url`, `data_version`
+**Ark `settings`:** `tolerance_mm` (2 mm – kun øvre ende av intervallet, se anbefalingslogikk), `wide_hoof_model` (`ultra` – modell for brede hover), `wide_hoof_max_extra_length_mm` (10 mm – se regel 5b), `fresh_trim_add_mm` (4 mm iflg. katalog), `measure_guide_url`, `dealer_finder_url`, `data_version`
 
 **Ark `avvik`:** Funn i kildedata som må avklares. Build-scriptet ignorerer arket, men data går ikke live før kritiske avvik er lukket.
 
@@ -82,14 +82,17 @@ Input: `{ length, width, unit }`. Output: strukturert objekt – **ingen tekst/H
 2. Valider: tomt, ikke-tall, negativt eller urealistisk (utenfor 40–250 mm) → feilkode (ikke `alert()`). Gyldig input utenfor alle størrelser er **ikke** en feil, men `no_match`.
 3. For hver aktiv modell: finn størrelser der `length_min ≤ L ≤ length_max` **og** `width_min ≤ W ≤ width_max` (tom `width_min` = ingen nedre grense).
    - Slim og Regular overlapper ikke (se datakilder). Build-scriptet skal gi feil hvis de gjør det.
-   - Intervallene har 1 mm hull (75 → 76 mm). Mål mellom to intervaller (f.eks. 75,5 mm) skal håndteres som «mellom størrelser», ikke «ingen treff».
+   - Intervallene har 1 mm hull (75 → 76 mm). Mål mellom to **lengde**-intervaller (f.eks. 75,5 mm) skal håndteres som «mellom størrelser», ikke «ingen treff».
+   - **Bredde** mellom Slim maks og Regular min (f.eks. 110,5 mm) er større enn Slim maks → **Regular**, uten råd (vedtatt 23.09.26).
 4. **Flere modeller passer** → returner alle, med `use_case` så kunden kan velge etter bruk.
 5. **Nær øvre grense:** Er lengde eller bredde innenfor `tolerance_mm` (2 mm) fra **maks** i treffet → returner primær + **alternativ** + råd-kode `near_upper_limit`.
    - Nær maks **lengde** → alternativ = neste størrelse opp i samme modell, med den varianten der bredden passer.
-   - Nær maks **bredde** (og ikke lengde) → alternativ = neste bredere variant: Slim → Regular i samme størrelse; Regular → neste størrelse opp der bredden passer.
-   - Finnes ingen slik størrelse → ingen alternativ. **Kun øvre ende** – nedre ende gir aldri alternativ. Formål: målefeil og hovvekst (jf. katalogens råd om +4 mm ved nylig raspet hov).
-   - Mål som havner i et 1 mm-hull mellom to intervaller (f.eks. 75,5 mm) → behandles som nær øvre grense av størrelsen under.
-5b. **Bred hov:** Lengden treffer en størrelse, men bredden er større enn Regular maks for den størrelsen (og ingen annen modell passer) → anbefal `wide_hoof_model` (Ultra) i **minste størrelse der bredden passer** (sjekk størrelse for størrelse, Slim før Regular), med `warning: outside_size_chart`. Ingen «nær grensen»-alternativ i dette tilfellet. Widgeten viser tydelig advarsel om at målene er utenfor størrelsestabellen, med lenke til forhandler for rådgivning. Modellen hentes fra `settings` – aldri hardkodet.
+   - Nær maks **bredde** på **Slim** → alternativ = Regular i samme størrelse.
+   - Nær maks **bredde** på **Regular** → **ingen alternativ, ingen råd** – kun størrelsen målene passer til (vedtatt 23.09.26: Slim i neste størrelse er ikke bredere, så det hjelper ikke).
+   - Finnes ingen alternativ (f.eks. største størrelse) → **ingen råd**, kun størrelsen som passer (vedtatt 23.09.26). `near_upper_limit` gis altså kun sammen med et alternativ. **Kun øvre ende** – nedre ende gir aldri alternativ. Formål: målefeil og hovvekst (jf. katalogens råd om +4 mm ved nylig raspet hov).
+   - Lengde som havner i et 1 mm-hull mellom to størrelser (f.eks. 75,5 mm) → behandles som nær øvre grense av størrelsen under.
+5b. **Bred hov:** Lengden treffer en størrelse, men bredden er større enn Regular maks for den størrelsen (og ingen annen modell passer) → anbefal `wide_hoof_model` (Ultra) i **minste størrelse der bredden passer** (sjekk størrelse for størrelse, Slim før Regular), med `warning: outside_size_chart`. Ingen «nær grensen»-alternativ i dette tilfellet.
+   - **Maks lengdeoverskudd:** Størrelsens `length_min_mm` kan være maks `wide_hoof_max_extra_length_mm` (10 mm) større enn hovens lengde. Ellers → `no_match` (vedtatt 23.09.26 – hindrer at en liten, bred hov får en altfor lang boot, f.eks. 70 × 80 mm → Ultra 10). Widgeten viser tydelig advarsel om at målene er utenfor størrelsestabellen, med lenke til forhandler for rådgivning. Modellen hentes fra `settings` – aldri hardkodet.
 6. **Ingen modell passer** (heller ikke via regel 5b) → returner `no_match`. Widgeten viser: **«We do not currently have any models that fit your size.»** + lenke til målguide og forhandler. Ingen «nærmeste størrelse» vises.
 
 Motoren skal være deterministisk og 100 % testdekket på grensetilfeller (nøyaktig på min/maks, rett utenfor, tommer-brøk, komma-desimal).
