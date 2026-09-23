@@ -28,7 +28,8 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
 
 - **Excel er eneste kilde til sannhet** for size chart. JSON genereres – **redigeres aldri for hånd**.
 - Build-scriptet stopper med tydelig feilmelding hvis data er ugyldig. Ugyldig data skal aldri nå kunden.
-- Hosting: kode + JSON i GitHub-repo, servert via **jsDelivr med versjons-tag** (f.eks. `@v1.2.0`) – aldri `@main` i produksjon. Webflow laster widgeten via custom code embed.
+- Hosting: kode + JSON i GitHub-repo, servert via **jsDelivr med versjons-tag** (f.eks. `@v1.2.0`) – aldri `@main` i produksjon. Webflow laster widgeten via custom code embed. Se `docs/webflow-embed.md`.
+- **Planlagt flytting (vedtatt 23.09.26, etter fase 6):** Koden flyttes ut av OneDrive til `C:\Prosjekter\ef-size-guide` + **offentlig** repo i Equine Fusions GitHub-organisasjon (jsDelivr krever offentlig repo). Excel-filen flyttes til en **felles OneDrive/SharePoint-mappe** (flere skal redigere), og `build-data` leser den derfra. Excel og `source-material/` legges **ikke** i GitHub (interne notater i `avvik`, stor PDF). Grunn: git og OneDrive-synk i samme mappe gir konfliktrisiko; Excel åpnes via SharePoint med AutoSave.
 
 ## Mappestruktur
 ```
@@ -47,6 +48,7 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
 /tests/                      Tester (node:test)
 /docs/webflow-embed.md       Hvordan widgeten legges inn i Webflow
 /docs/data-guide.md          Hvordan Excel-filen vedlikeholdes
+/docs/analytics.md           GA4-events og oppsett i GA4
 /source-material/            PDF-er/produktark med opprinnelige mål (kun referanse)
 /legacy/                     Gammel kalkulator (kun referanse)
 ```
@@ -74,8 +76,9 @@ Slim/Regular er **varianter innen samme modell**, ikke egne modeller.
 Nye modeller legges til **kun i Excel** – aldri i koden.
 
 ### Validering i build-script
-- Feil (stopper build): manglende felt, min > max, ukjent `model_id`, duplikat `model_id + size_label`, urealistiske verdier (sanity-grenser).
-- Advarsel: overlapp eller hull mellom størrelser innen samme modell.
+- Feil (stopper build, norsk melding med ark + rad): manglende ark/kolonne/felt (inkl. `width_min_mm`), ikke-heltall i mm-felt, min > max, verdier utenfor 40–250 mm, ukjent `model_id`, duplikat `model_id` eller `model_id + size_label`, `variant` ≠ slim/regular, `sold_as` ≠ single/pair, `active` ≠ TRUE/FALSE, Slim og Regular overlapper i bredde, manglende/ugyldig innstilling, `wide_hoof_model`/`narrow_hoof_model` er ikke en aktiv modell.
+- Advarsel (build fortsetter): hull > 1 mm eller overlapp i lengde mellom størrelser, ulik lengde på Slim/Regular i samme størrelse, aktiv modell uten størrelser, manglende `image_url`/`product_url`.
+- Kun rader med `active = TRUE` (og aktiv modell) kommer med i JSON.
 
 ## Anbefalingslogikk (`engine.js`)
 Input: `{ length, width, unit }`. Output: strukturert objekt – **ingen tekst/HTML i motoren**.
@@ -100,6 +103,25 @@ Input: `{ length, width, unit }`. Output: strukturert objekt – **ingen tekst/H
 
 Motoren skal være deterministisk og 100 % testdekket på grensetilfeller (nøyaktig på min/maks, rett utenfor, tommer-brøk, komma-desimal).
 
+### Output-format (`recommend(input, data)`)
+```js
+{
+  status: 'ok' | 'no_match' | 'invalid_input',
+  errors: [{ field: 'length' | 'width' | 'unit', code }],  // kun invalid_input
+          // code: 'empty' | 'not_a_number' | 'not_positive' | 'out_of_range' | 'invalid_unit'
+  input: { lengthMm, widthMm, unit },                       // mm avrundet til 0,1; null ved feil
+  recommendations: [{                                       // sortert etter sort_order
+    modelId, sizeLabel, size, variant,                      // 'active', '12 Slim', '12', 'slim'
+    advice: [] | ['near_upper_limit'],                      // kun sammen med alternative
+    warning: null | 'outside_size_chart',
+    outsideReason: null | 'wide' | 'narrow',
+    betweenSizes: boolean,                                  // lengde i 1 mm-hull mellom størrelser
+    alternative: null | { sizeLabel, size, variant, reason: 'length' | 'width' }
+  }]
+}
+```
+`units.js` eksporterer i tillegg `parseMeasurement`, `normaliseUnit` og `formatMeasurement` (visning).
+
 ## Widget (`widget.js`)
 - **Vanilla JS**, ingen jQuery eller andre avhengigheter.
 - Mobil-først. Må fungere godt på nettbrett i butikk (distributør-bruk).
@@ -112,6 +134,15 @@ Motoren skal være deterministisk og 100 % testdekket på grensetilfeller (nøya
 - Språk: kun engelsk nå, men all UI-tekst samlet i ett `strings`-objekt så flere språk kan legges til senere.
 - Vis «sold as single/pair» i resultatet.
 - **Produktbilde ved siden av hver anbefaling** (fra `image_url`). Desktop: bilde til venstre, tekst til høyre. Mobil: bilde over tekst. Mangler bilde → nøytral plassholder, aldri ødelagt bilde. `alt`-tekst = modellnavn. `loading="lazy"`.
+
+### Slik er widgeten bygd (fase 4)
+- `mount(element, options)` (også `window.EFSizeGuide.mount`). Alle options valgfrie: `data`, `dataUrl` (standard `../data/size-chart.json` relativt til `widget.js`), `imageBaseUrl`, `loadCss` (injiserer `widget.css` selv), `updateUrl` (målene i adresselinjen etter beregning), `share` («Copy link»), `onResult`, `onAnalytics` (debug-hooks).
+- Layout tilpasser seg widgetens egen bredde (container queries), ikke skjermen.
+- **Farge:** aksent = EF-knappeblå `#062a56` (Webflow `--eqfu--blue-950`), hover `#00359e`. Fonten arves fra siden.
+- Lenker åpnes i samme fane. Mål vises i valgt enhet («Hoof: 11.8 × 11.0 cm»); Regular vises som «12 Regular».
+- Delt lenke: `?l=11.8&w=11.0&u=cm&src=share` (`u` = cm/in/mm; mm vises i cm).
+- **Delbar testside:** `npm run build-share` → `dist/share/index.html` (alt inlinet) publiseres som claude.ai-artifact https://claude.ai/artifact/J8bxWRthd8RxjNaKurZody («Anyone with the link»). Der er «Copy link» og adresselinje skrudd av (fungerer ikke i claude.ai-rammen).
+- **UI-tekster er utkast** – ikke endelig godkjent av Sven Erik.
 
 ## Analytics
 Equine Fusion bruker **Google Analytics (GA4)**. Widgeten sender events via `gtag('event', …)` hvis `gtag` finnes på siden (bygd i fase 5 – full liste med parametere og GA4-oppsett i `docs/analytics.md`):
@@ -134,8 +165,13 @@ Analytics-logikk ligger i `src/analytics.js` (rene funksjoner, testet) og kalles
 ```
 npm run build-data    # Excel → JSON (med validering)
 npm test              # Kjør alle tester
-npm run dev           # Lokal testside med widgeten
+npm run dev           # Lokal testside: http://localhost:5173/demo/ (+ adresse på lokalt nett)
+npm run build-share   # Én delbar HTML-fil av testsiden → dist/share/index.html
+npm run fetch-images  # Henter produktbilder fra product_url (hopper over eksisterende; --force for å overskrive)
 ```
+
+### Redigere Excel fra Claude
+Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via Excel COM lagres i skyen før lokal fil synkes, og en feil midt i et script kan etterlate halvferdige endringer. Derfor: skriv endringsscript som tåler å kjøres på nytt, cast tekst til `[string]` før `Value2 =` (ellers `InvalidCastException`), og kontroller alltid resultatet mot forrige commit med SheetJS etterpå. SheetJS skal **ikke** brukes til å skrive Excel (mister formatering).
 
 ## Regler for Claude
 - Kjør `npm test` etter hver endring i `engine.js`, `units.js` eller data. Ikke si at noe fungerer uten at testene er grønne.
@@ -153,10 +189,16 @@ npm run dev           # Lokal testside med widgeten
 - [x] Produkt-URL-er lagt inn.
 - [ ] Bekreft `use_case`-tekster.
 - [x] URL til forhandlerfinner og målguide lagt inn.
-- [ ] Skriv råd-tekster for «nær grensen» og advarsel for brede hover.
+- [x] Utkast til råd-tekster for «nær grensen» og advarsler for brede/smale hover (i `strings` i `widget.js`).
+- [ ] **Godkjenn alle UI-tekster** (liste i fase 4-oppsummering / `strings` i `widget.js`).
+- [x] Slim min bredde for Active/Trekking/Ultra = Regular min − 10 + regel for smale hover (23.09.26).
+- [x] Produktbilder i `/assets/images/` og `image_url` i Excel (Trailblazer beskåret uten prismerke, 29 kB).
+- [x] Knappefarge = EF-blå fra eqfusion.com.
+- [x] Koble GA4-events på widgeten (fase 5). Gjenstår: registrere custom dimensions i GA4 og teste i DebugView når widgeten er i Webflow (`docs/analytics.md`).
+- [x] Bygg steg 1 i Claude Code etter `STEG1-BUILD-PROMPT.md` (fase 0–6 ferdig 23.09.26).
+- [x] GitHub-organisasjon opprettet av Sven Erik.
+- [ ] Flytt kode ut av OneDrive + Excel til felles OneDrive-mappe (se Arkitektur).
+- [ ] Opprett offentlig GitHub-repo i organisasjonen, push, første versjons-tag.
+- [ ] Test i Webflow på staging (webflow.io) → GA4 DebugView → publiser på eqfusion.com. Fjern gammel kalkulator.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
-- [ ] Opprett GitHub-repo.
-- [x] Koble GA4-events på widgeten (fase 5). Gjenstår: registrere custom dimensions i GA4 og teste i DebugView når widgeten er i Webflow.
-- [ ] Produktbilder i `/assets/images/` og `image_url` i Excel.
-- [ ] Bygg steg 1 i Claude Code etter `STEG1-BUILD-PROMPT.md`.
 - [ ] Steg 2: velg metode for bildeanalyse.
