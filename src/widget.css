@@ -8,8 +8,9 @@
  */
 
 .efsg-root {
-  --efsg-accent: #c8102e;          /* buttons, focus, selected unit */
-  --efsg-accent-hover: #a50d26;
+  /* Button colour from eqfusion.com (Webflow variable --eqfu--blue-950). */
+  --efsg-accent: #062a56;          /* buttons, focus, selected unit */
+  --efsg-accent-hover: #00359e;    /* --eqfu--blue-900 */
   --efsg-accent-contrast: #ffffff; /* text on accent */
   --efsg-text: #1a1a1a;
   --efsg-muted: #5c5c5c;
@@ -239,7 +240,7 @@
 
 .efsg-root .efsg-button-secondary {
   background: var(--efsg-surface);
-  border-color: var(--efsg-text);
+  border-color: var(--efsg-accent); /* like .button.is-secondary on eqfusion.com */
   color: var(--efsg-text);
 }
 

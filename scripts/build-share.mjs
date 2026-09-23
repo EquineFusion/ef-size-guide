@@ -83,7 +83,7 @@ main { max-width: 800px; margin: 0 auto; padding: 20px 16px 48px; display: grid;
   font-variant-numeric: tabular-nums;
 }
 .example:hover { border-color: var(--page-text); }
-.example:focus-visible { outline: 3px solid #c8102e; outline-offset: 2px; }
+.example:focus-visible { outline: 3px solid #062a56; outline-offset: 2px; }
 .widget-box { padding: 24px 20px; background: var(--panel); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 details.debug { font-size: 0.85rem; color: var(--page-muted); }
 details.debug summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; align-items: center; }
