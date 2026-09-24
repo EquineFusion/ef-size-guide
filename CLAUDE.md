@@ -207,7 +207,8 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [x] GitHub-organisasjon opprettet av Sven Erik.
 - [x] Flytt kode ut av OneDrive + Excel til felles OneDrive-mappe (23.09.26, se «Plassering»).
 - [ ] Slett/arkiver gammel prosjektmappe i OneDrive når Sven Erik har bekreftet at alt virker (inkl. den gamle kopien av Excel-filen, så ingen redigerer feil fil).
-- [ ] Opprett offentlig GitHub-repo i organisasjonen, push, første versjons-tag.
+- [x] Offentlig GitHub-repo `EquineFusion/ef-size-guide` opprettet og pushet (24.09.26). Commits bruker anonym adresse `309724780+SvenErik1987@users.noreply.github.com` (satt i repoets git-config). jsDelivr serverer filene.
+- [ ] Første versjons-tag `v1.0.0` – når tekstene er godkjent og vi er klare for Webflow-staging.
 - [ ] Test i Webflow på staging (webflow.io) → GA4 DebugView → publiser på eqfusion.com. Fjern gammel kalkulator.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
 - [ ] Steg 2: velg metode for bildeanalyse.
