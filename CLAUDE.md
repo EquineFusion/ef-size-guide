@@ -35,6 +35,7 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
   `C:\Eqfu\Equine Fusion AS\Hovedmappe - Dokumenter\Sales & Marketing\Markedsføring\Markedsføring admin\Nettsiden\Size chart master chart\size-chart.xlsx`
   `build-data` finner den via `local.config.json` (`excelPath`, ikke i git – hver PC har sin sti; mal i `local.config.example.json`). Alternativt miljøvariabel `SIZE_CHART_XLSX`.
 - **Ikke i git/GitHub:** Excel-filer (interne notater i `avvik`) og kildemateriale (katalog-PDF, `Size chart TB.xlsx`). Fjernet fra hele git-historikken ved flyttingen.
+- **Kopier i den felles Excel-mappen (24.09.26):** `Kildemateriale/` (katalog-PDF, `Size chart TB.xlsx`) og `Kildekode/ef-size-guide` (øyeblikksbilde av koden, commit 3c04eef – oppdateres ikke automatisk; GitHub er originalen). Begge har en «LES MEG.txt».
 - **Kildemateriale og gammel prosjektmappe (arkiv):** `C:\Eqfu\OneDrive - Equine Fusion AS\Claude\Size guide og verktøy` – inneholder `source-material/`, `legacy/`, byggeoppdraget (`STEG1-BUILD-PROMPT.md`), `Prosjektinstruksjoner.md` og full, uredigert historikk. Ikke jobb videre der.
 - **GitHub:** `EquineFusion/ef-size-guide` (offentlig). Kun det som trengs for å kjøre, teste og vedlikeholde widgeten – interne filer over er fjernet fra hele historikken.
 
