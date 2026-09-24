@@ -209,6 +209,6 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [ ] Slett/arkiver gammel prosjektmappe i OneDrive når Sven Erik har bekreftet at alt virker (inkl. den gamle kopien av Excel-filen, så ingen redigerer feil fil).
 - [x] Offentlig GitHub-repo `EquineFusion/ef-size-guide` opprettet og pushet (24.09.26). Commits bruker anonym adresse `309724780+SvenErik1987@users.noreply.github.com` (satt i repoets git-config). jsDelivr serverer filene.
 - [x] Første versjons-tag `v1.0.0` (24.09.26). Webflow-embed: `https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.0.0/src/widget.js`
-- [ ] Test i Webflow på staging (webflow.io) → GA4 DebugView → publiser på eqfusion.com. Fjern gammel kalkulator.
+- [ ] Test i Webflow på staging (webflow.io) → GA4 DebugView → publiser på eqfusion.com. Fjern gammel kalkulator. Utføres av en kollega etter tre Word-guider (norsk, for ikke-tekniske) i den felles Excel-mappen: «Guide 1 – Webflow testadressen», «Guide 2 – Google Analytics», «Guide 3 – Publiser på eqfusion.com», pluss `Webflow-kode.txt` (embed-koden). **Oppdater guidene og `Webflow-kode.txt` hvis embed-kode, versjon eller fremgangsmåte endres.**
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
 - [ ] Steg 2: velg metode for bildeanalyse.
