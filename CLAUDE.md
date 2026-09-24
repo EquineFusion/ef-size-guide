@@ -150,7 +150,7 @@ Motoren skal være deterministisk og 100 % testdekket på grensetilfeller (nøya
 - Lenker åpnes i samme fane. Mål vises i valgt enhet («Hoof: 11.8 × 11.0 cm»); Regular vises som «12 Regular».
 - Delt lenke: `?l=11.8&w=11.0&u=cm&src=share` (`u` = cm/in/mm; mm vises i cm).
 - **Delbar testside:** `npm run build-share` → `dist/share/index.html` (alt inlinet) publiseres som claude.ai-artifact https://claude.ai/artifact/J8bxWRthd8RxjNaKurZody («Anyone with the link» – delt med kollegaer). **Publiser alltid med denne `url`** så lenken kollegaene har blir oppdatert (ikke ny artifact). Der er «Copy link» og adresselinje skrudd av (fungerer ikke i claude.ai-rammen).
-- **UI-tekster er utkast** – ikke endelig godkjent av Sven Erik.
+- **UI-tekstene er godkjent** av Sven Erik (24.09.26). Endringer i `strings` skal godkjennes på nytt.
 
 ## Analytics
 Equine Fusion bruker **Google Analytics (GA4)**. Widgeten sender events via `gtag('event', …)` hvis `gtag` finnes på siden (bygd i fase 5 – full liste med parametere og GA4-oppsett i `docs/analytics.md`):
@@ -198,7 +198,7 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [ ] Bekreft `use_case`-tekster.
 - [x] URL til forhandlerfinner og målguide lagt inn.
 - [x] Utkast til råd-tekster for «nær grensen» og advarsler for brede/smale hover (i `strings` i `widget.js`).
-- [ ] **Godkjenn alle UI-tekster** (liste i fase 4-oppsummering / `strings` i `widget.js`).
+- [x] **UI-tekster godkjent** (24.09.26, `strings` i `widget.js`).
 - [x] Slim min bredde for Active/Trekking/Ultra = Regular min − 10 + regel for smale hover (23.09.26).
 - [x] Produktbilder i `/assets/images/` og `image_url` i Excel (Trailblazer beskåret uten prismerke, 29 kB).
 - [x] Knappefarge = EF-blå fra eqfusion.com.
@@ -208,7 +208,7 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [x] Flytt kode ut av OneDrive + Excel til felles OneDrive-mappe (23.09.26, se «Plassering»).
 - [ ] Slett/arkiver gammel prosjektmappe i OneDrive når Sven Erik har bekreftet at alt virker (inkl. den gamle kopien av Excel-filen, så ingen redigerer feil fil).
 - [x] Offentlig GitHub-repo `EquineFusion/ef-size-guide` opprettet og pushet (24.09.26). Commits bruker anonym adresse `309724780+SvenErik1987@users.noreply.github.com` (satt i repoets git-config). jsDelivr serverer filene.
-- [ ] Første versjons-tag `v1.0.0` – når tekstene er godkjent og vi er klare for Webflow-staging.
+- [x] Første versjons-tag `v1.0.0` (24.09.26). Webflow-embed: `https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.0.0/src/widget.js`
 - [ ] Test i Webflow på staging (webflow.io) → GA4 DebugView → publiser på eqfusion.com. Fjern gammel kalkulator.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
 - [ ] Steg 2: velg metode for bildeanalyse.

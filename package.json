@@ -1,6 +1,6 @@
 {
   "name": "equine-fusion-size-guide",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Size guide calculator for Equine Fusion hoof boots (step 1: embeddable widget).",
   "type": "module",
