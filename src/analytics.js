@@ -1,20 +1,21 @@
 // analytics.js
-// Google Analytics (GA4) events for the size guide widget.
+// Google Analytics (GA4) events for the size guide widget and the size chart table.
 //
 // - Events are sent with window.gtag('event', name, params) ONLY if gtag exists on the page
 //   (eqfusion.com already has GA4). No gtag → nothing is sent, nothing breaks.
 // - No personal data. Measurements are rounded to whole millimetres.
-// - Used by widget.js only – never by engine.js.
+// - Used by widget.js and chart.js only – never by engine.js.
 // - The event builders are pure functions (no DOM), so they can be tested in Node.
 //
 // Events
 //   sizeguide_calculate           one per calculation (form submit or opened shared link)
 //   sizeguide_result              one per recommended model
 //   sizeguide_click_product       "View product"
-//   sizeguide_click_dealer        "Find a dealer"
-//   sizeguide_click_measure_guide "How to measure"
+//   sizeguide_click_dealer        "Find a dealer"         (source: 'calculator' | 'chart')
+//   sizeguide_click_measure_guide "How to measure" / "Full measuring guide" (source: 'calculator' | 'chart')
 //   sizeguide_share               "Copy link"
 //   sizeguide_open_shared         page opened from a shared link (?src=share)
+//   sizeguide_chart_unit          unit switched in the size chart table (model, unit)
 
 /**
  * Send one event. Never throws.

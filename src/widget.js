@@ -28,6 +28,7 @@
 import { recommend } from './engine.js';
 import { formatMeasurement, normaliseUnit, parseMeasurement } from './units.js';
 import { sendEvent, calculateEvent, resultEvents } from './analytics.js';
+import { UNITS, readStoredUnit, saveUnit, onUnitChange } from './unit-pref.js';
 
 // ---------------------------------------------------------------------------
 // Customer-facing text (English). Add other languages later by swapping this object.
@@ -87,8 +88,6 @@ export const strings = {
   copyManually: 'Copy this link:',
 };
 
-const UNITS = ['cm', 'in'];
-const STORAGE_KEY = 'efsg-unit';
 let instanceCount = 0;
 
 // ---------------------------------------------------------------------------
@@ -182,11 +181,18 @@ export async function mount(element, options = {}) {
   for (const button of unitButtons) {
     button.querySelector('input').addEventListener('change', (event) => {
       setUnit(event.target.value, { convert: true });
-      storeUnit(unit);
+      saveUnit(unit, root);
       if (data && lastResult) calculate();
     });
   }
   setUnit(unit, { convert: false });
+
+  // The size chart on the same page changed the unit → follow it (not counted in analytics).
+  onUnitChange(root, (newUnit) => {
+    if (newUnit === unit) return;
+    setUnit(newUnit, { convert: true });
+    if (data && lastResult) calculate();
+  });
 
   // Clear a field's error as soon as the customer edits it.
   for (const name of ['length', 'width']) {
@@ -211,7 +217,7 @@ export async function mount(element, options = {}) {
   status.remove();
   submit.removeAttribute('disabled');
   measureLink.href = data.settings.measure_guide_url;
-  measureLink.addEventListener('click', () => track('sizeguide_click_measure_guide', { context: 'form' }));
+  measureLink.addEventListener('click', () => track('sizeguide_click_measure_guide', { source: 'calculator', context: 'form' }));
 
   // --- Calculate --------------------------------------------------------------
   // `trigger` says why we calculate: 'form' or 'shared_link' are tracked in analytics;
@@ -274,12 +280,12 @@ export async function mount(element, options = {}) {
             trackedLink(
               el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.measure_guide_url }, strings.howToMeasure),
               'sizeguide_click_measure_guide',
-              { context: 'no_match' }
+              { source: 'calculator', context: 'no_match' }
             ),
             trackedLink(
               el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.dealer_finder_url }, strings.findDealer),
               'sizeguide_click_dealer',
-              { context: 'no_match', model: 'none', size: 'none' }
+              { source: 'calculator', context: 'no_match', model: 'none', size: 'none' }
             ),
           ]),
         ]),
@@ -336,7 +342,7 @@ export async function mount(element, options = {}) {
         trackedLink(
           el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.dealer_finder_url }, strings.findDealer),
           'sizeguide_click_dealer',
-          { context: 'result', ...clickParams }
+          { source: 'calculator', context: 'result', ...clickParams }
         ),
       ])
     );
@@ -478,24 +484,6 @@ function placeholder() {
     '<svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round">' +
     '<path d="M18 14h22l6 22 8 6v8H10v-8l4-6z"/><path d="M10 50h44"/></svg>';
   return wrap;
-}
-
-// --- Unit memory (localStorage can be blocked – never let that break the widget) ---
-function readStoredUnit() {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return UNITS.includes(stored) ? stored : null;
-  } catch {
-    return null;
-  }
-}
-
-function storeUnit(unit) {
-  try {
-    localStorage.setItem(STORAGE_KEY, unit);
-  } catch {
-    /* ignore */
-  }
 }
 
 // --- URL parameters ---------------------------------------------------------------

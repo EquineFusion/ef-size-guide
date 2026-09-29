@@ -32,8 +32,11 @@
       font-weight: 700;
       letter-spacing: 0.08em;
     }
-    main { max-width: 800px; margin: 0 auto; padding: 24px 16px 48px; }
+    main { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 24px; }
     .widget-box { padding: 24px 20px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .model-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.9rem; color: #5c5c5c; }
+    .model-picker label { font-weight: 700; }
+    .model-picker select { min-height: 44px; padding: 0 0.6rem; font: inherit; font-size: 1rem; border: 1px solid #d9d9d9; border-radius: 8px; background: #fff; }
     details.debug { margin-top: 2rem; font-size: 0.85rem; }
     details.debug summary { cursor: pointer; font-weight: 700; color: #5c5c5c; min-height: 44px; display: flex; align-items: center; }
     details.debug h3 { margin: 1rem 0 0.3rem; font-size: 0.9rem; }
@@ -62,6 +65,21 @@
       <div id="size-guide"></div>
     </div>
 
+    <!-- Test only: on the product pages the model is found from the page address. -->
+    <div class="model-picker">
+      <label for="chart-model">Size chart for (test only):</label>
+      <select id="chart-model">
+        <option value="active">Active</option>
+        <option value="trailblazer">Trailblazer</option>
+        <option value="ultra">Ultra</option>
+        <option value="trekking">Trekking</option>
+      </select>
+    </div>
+
+    <div class="widget-box">
+      <div id="size-chart" data-model="active"></div>
+    </div>
+
     <!-- Debug panel: only on this test page, not part of the widget. -->
     <details class="debug">
       <summary>Debug</summary>
@@ -76,21 +94,35 @@
 
   <script type="module">
     import { mount } from '../src/widget.js';
+    import { mountChart } from '../src/chart.js';
 
     const debugResult = document.getElementById('debug-result');
     const debugAnalytics = document.getElementById('debug-analytics');
     const events = [];
+    // The test page has no GA4 (no gtag), so events are only shown in the debug panel.
+    const showEvent = (name, params) => {
+      events.unshift(`${new Date().toLocaleTimeString()}  ${name}\n${JSON.stringify(params, null, 2)}`);
+      debugAnalytics.textContent = events.slice(0, 15).join('\n\n');
+    };
 
     mount(document.getElementById('size-guide'), {
       onResult: (result) => {
         debugResult.textContent = JSON.stringify(result, null, 2);
       },
-      // The test page has no GA4 (no gtag), so events are only shown here.
-      onAnalytics: (name, params) => {
-        events.unshift(`${new Date().toLocaleTimeString()}  ${name}\n${JSON.stringify(params, null, 2)}`);
-        debugAnalytics.textContent = events.slice(0, 15).join('\n\n');
-      },
+      onAnalytics: showEvent,
     });
+
+    // Size chart with a model picker (?model=trailblazer also works, handy for testing on a phone).
+    const chart = document.getElementById('size-chart');
+    const picker = document.getElementById('chart-model');
+    const startModel = new URLSearchParams(location.search).get('model');
+    if (startModel && [...picker.options].some((o) => o.value === startModel)) picker.value = startModel;
+    const showChart = () => {
+      chart.dataset.model = picker.value;
+      mountChart(chart, { onAnalytics: showEvent });
+    };
+    picker.addEventListener('change', showChart);
+    showChart();
 
     // Show which data version the page is using.
     fetch('../data/size-chart.json')

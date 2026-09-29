@@ -56,6 +56,8 @@ GitHub-repo (offentlig)  ──►  jsDelivr (gratis CDN)  ──►  Webflow-si
 2. Commit og lag ny tag: `v1.0.1` for dataendringer/småfikser, `v1.1.0` for ny funksjon.
 3. Push commit + tag til GitHub.
 4. I Webflow: bytt `@v1.0.0` til `@v1.0.1` i Embed-koden → publiser (staging først).
+   Fra v1.1.0 finnes også size chart-tabellen på produktsidene (`docs/webflow-size-chart.md`).
+   Bytt versjon i **begge** Embed-kodene samtidig, så de alltid har samme versjon.
 
 **Angre:** bytt tilbake til forrige tag i Webflow og publiser. Gamle versjoner ligger alltid på jsDelivr.
 

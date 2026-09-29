@@ -23,6 +23,26 @@ sjekker dataene først, så en skrivefeil aldri når kunden.
 
 ---
 
+## Slik endrer du mål (hele rutinen)
+
+Kalkulatoren **og** size chart-tabellen på produktsidene bruker de samme målene. Én endring i Excel
+oppdaterer begge. Det står ingen mål i Webflow eller i koden.
+
+| # | Hva | Hvem | Hvordan |
+|---|---|---|---|
+| 1 | **Endre Excel** | Den som har målene | Åpne `size-chart.xlsx`, endre tallene i arket `sizes`, skriv kilde i `source`, og sett `data_version` i `settings` til dagens dato. Vent på grønn hake i OneDrive. |
+| 2 | **Bygg** | Sven Erik / Claude | `npm run build-data`. Står det `FEIL`, rett i Excel og kjør igjen (se steg 2 under). |
+| 3 | **Test** | Sven Erik / Claude | `npm test` skal være grønn. Åpne testsiden (`npm run dev`) og sjekk tabellen og noen mål i kalkulatoren. |
+| 4 | **Ny versjon** | Sven Erik / Claude | Commit, ny versjons-tag (f.eks. `v1.1.1`) og push til GitHub. Sjekk at filen finnes på jsDelivr. |
+| 5 | **Bytt versjon i Webflow** | Den som har Webflow | Bytt f.eks. `@v1.1.0` til `@v1.1.1` i **begge** Embed-kodene (kalkulatoren og tabellen i produktmalen). Publiser på testadressen, sjekk, så eqfusion.com. |
+
+**Angre:** bytt tilbake til forrige versjon i Webflow og publiser. Detaljer: `docs/webflow-embed.md`
+og `docs/webflow-size-chart.md`.
+
+Be gjerne Claude om å gjøre steg 2–4: «Jeg har endret mål i Excel, lag ny versjon.»
+
+---
+
 ## 1. Rediger Excel-filen
 
 Åpne `size-chart.xlsx` i Excel (PC eller nettleser). **Rediger kun arkene `models`, `sizes` og `settings`.**
@@ -139,4 +159,5 @@ Oppdatere den delbare testsiden for kollegaer: `npm run build-share` og be Claud
 ## 4. Publiser
 
 Når dataene er testet, publiseres en ny versjon til nettsiden (commit, versjons-tag på GitHub
-og oppdatering i Webflow). Se `docs/webflow-embed.md`. Dette gjør Sven Erik sammen med Claude.
+og oppdatering i Webflow). Se «Slik endrer du mål» øverst, `docs/webflow-embed.md` (kalkulatoren)
+og `docs/webflow-size-chart.md` (tabellen på produktsidene). Dette gjør Sven Erik sammen med Claude.

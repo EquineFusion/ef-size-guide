@@ -3,8 +3,8 @@
 // (published as a private page on claude.ai). Output: dist/share/index.html
 //
 // Everything is inlined, because the shared page runs in a locked-down frame that
-// only allows its own content: engine + units + widget (JS), widget.css,
-// size-chart.json and the product images (as data: URIs).
+// only allows its own content: engine + units + widget + size chart table (JS), widget.css,
+// chart.css, size-chart.json and the product images (as data: URIs).
 //
 // The real source files are not changed – this only packs them together.
 // Usage: npm run build-share   (run `npm run build-data` first if the Excel file changed)
@@ -38,7 +38,12 @@ function stripModule(source) {
     .replace(/^import .*;\s*$/gm, '')
     .replace(/^export (?=(const|let|function|async function|class) )/gm, '');
 }
-const js = ['src/units.js', 'src/engine.js', 'src/analytics.js', 'src/widget.js'].map((f) => `// ---- ${f} ----\n${stripModule(read(f))}`).join('\n');
+const js = ['src/units.js', 'src/engine.js', 'src/analytics.js', 'src/unit-pref.js', 'src/chart-format.js', 'src/widget.js']
+  .map((f) => `// ---- ${f} ----\n${stripModule(read(f))}`)
+  .join('\n');
+// chart.js has helpers with the same names as widget.js (el, strings, loadCss …), so it gets its own
+// block { … }. It is reached through window.EFSizeGuide.mountChart, which it registers itself.
+const chartJs = `// ---- src/chart.js ----\n{\n${stripModule(read('src/chart.js'))}\n}`;
 
 // 3. The page. (The publishing skeleton adds <!doctype>, <head> and <body> itself.)
 const escapeForScript = (s) => s.replace(/<\/script/gi, '<\\/script');
@@ -93,7 +98,14 @@ details.debug pre {
 }
 .debug-title { margin: 1rem 0 0; font-size: 0.85rem; color: var(--page-text); }
 .version { font-size: 0.75rem; color: var(--page-muted); }
+.model-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--page-muted); }
+.model-picker label { font-weight: 700; }
+.model-picker select {
+  min-height: 44px; padding: 0 0.6rem; font: inherit; font-size: 1rem; color: var(--page-text);
+  border: 1px solid var(--chip-border); border-radius: 8px; background: var(--chip-bg);
+}
 ${read('src/widget.css')}
+${read('src/chart.css')}
 </style>
 
 <header class="page-header">
@@ -121,6 +133,20 @@ ${read('src/widget.css')}
     <div id="size-guide"></div>
   </div>
 
+  <div class="model-picker">
+    <label for="chart-model">Size chart for:</label>
+    <select id="chart-model">
+${data.models.map((m) => `      <option value="${m.model_id}">${m.name}</option>`).join('\n')}
+    </select>
+  </div>
+  <p class="tester-note">
+    On the website, each product page shows only the size chart for that product. The menu above is for testing.
+  </p>
+
+  <div class="widget-box">
+    <div id="size-chart"></div>
+  </div>
+
   <details class="debug">
     <summary>Debug (engine output and analytics events)</summary>
     <h3 class="debug-title">Analytics events – newest first (not sent anywhere on this test page)</h3>
@@ -133,6 +159,7 @@ ${read('src/widget.css')}
 
 <script type="module">
 ${escapeForScript(js)}
+${escapeForScript(chartJs)}
 
 // ---- test page ----
 const SIZE_CHART = ${escapeForScript(JSON.stringify(data))};
@@ -140,6 +167,10 @@ const container = document.getElementById('size-guide');
 const debug = document.getElementById('debug-result');
 const debugAnalytics = document.getElementById('debug-analytics');
 const events = [];
+const showEvent = (name, params) => {
+  events.unshift(new Date().toLocaleTimeString() + '  ' + name + '\\n' + JSON.stringify(params, null, 2));
+  debugAnalytics.textContent = events.slice(0, 15).join('\\n\\n');
+};
 
 mount(container, {
   data: SIZE_CHART,
@@ -147,11 +178,17 @@ mount(container, {
   updateUrl: false, // the shared page cannot use the address bar
   share: false,     // "Copy link" would copy the frame's address, not a usable link
   onResult: (result) => { debug.textContent = JSON.stringify(result, null, 2); },
-  onAnalytics: (name, params) => {
-    events.unshift(new Date().toLocaleTimeString() + '  ' + name + '\\n' + JSON.stringify(params, null, 2));
-    debugAnalytics.textContent = events.slice(0, 15).join('\\n\\n');
-  },
+  onAnalytics: showEvent,
 });
+
+// Size chart with a model picker (on the website the model comes from the product page address).
+const chartElement = document.getElementById('size-chart');
+const picker = document.getElementById('chart-model');
+const showChart = () => {
+  window.EFSizeGuide.mountChart(chartElement, { model: picker.value, data: SIZE_CHART, loadCss: false, onAnalytics: showEvent });
+};
+picker.addEventListener('change', showChart);
+showChart();
 
 // Example buttons: fill in the form and calculate.
 for (const button of document.querySelectorAll('.example')) {

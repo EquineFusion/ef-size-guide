@@ -22,8 +22,10 @@ Online size guide / kalkulator for Equine Fusion AS (hoof boots for hester). Kun
 ## Arkitektur
 
 ```
-Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.json  ──►  widget (Webflow)
-                     (validerer + konverterer)                           └──►  app (steg 2)
+Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.json  ─┬─►  widget.js (kalkulator, Webflow)
+                     (validerer + konverterer)                           ├─►  chart.js  (size chart-tabell på produktsidene)
+                                                                         │      └─ chart-format.js (rene funksjoner)
+                                                                         └─►  app (steg 2)
 ```
 
 - **Excel er eneste kilde til sannhet** for size chart. JSON genereres – **redigeres aldri for hånd**.
@@ -49,13 +51,18 @@ Excel (master)  ──►  scripts/build-data.mjs  ──►  data/size-chart.js
 /src/units.js                Enhetskonvertering og input-parsing
 /src/widget.js               UI + Webflow-embed
 /src/widget.css              Stil (prefikset, lekker ikke til Webflow)
-/src/analytics.js            GA4-events (brukes kun av widget.js)
+/src/chart.js                Size chart-tabell for produktsidene (v1.1.0)
+/src/chart.css               Stil for tabellen (prefikset .efsc-)
+/src/chart-format.js         Rene funksjoner for tabellen: formatering, rader, modell fra adresse
+/src/unit-pref.js            Felles enhetsvalg (localStorage + synk mellom kalkulator og tabell)
+/src/analytics.js            GA4-events (brukes av widget.js og chart.js)
 /scripts/build-share.mjs     Lager én selvstendig HTML-fil av testsiden (dist/share/) for deling
 /assets/images/              Produktbilder per modell (<model_id>.jpg/.png/.webp)
 /demo/index.html             Frittstående testside for widgeten
 /scripts/dev-server.mjs      Lokal server uten avhengigheter (også tilgjengelig på lokalt nett for test på mobil/nettbrett)
 /tests/                      Tester (node:test)
 /docs/webflow-embed.md       Hvordan widgeten legges inn i Webflow
+/docs/webflow-size-chart.md  Hvordan size chart-tabellen legges inn i produktmalen i Webflow
 /docs/data-guide.md          Hvordan Excel-filen vedlikeholdes
 /docs/analytics.md           GA4-events og oppsett i GA4
 (Ikke i repoet – ligger i arkivmappen i OneDrive, se «Plassering»: source-material/ med katalog-PDF og
@@ -152,17 +159,42 @@ Motoren skal være deterministisk og 100 % testdekket på grensetilfeller (nøya
 - Delt lenke: `?l=11.8&w=11.0&u=cm&src=share` (`u` = cm/in/mm; mm vises i cm).
 - **Delbar testside:** `npm run build-share` → `dist/share/index.html` (alt inlinet) publiseres som claude.ai-artifact https://claude.ai/artifact/J8bxWRthd8RxjNaKurZody («Anyone with the link» – delt med kollegaer). **Publiser alltid med denne `url`** så lenken kollegaene har blir oppdatert (ikke ny artifact). Der er «Copy link» og adresselinje skrudd av (fungerer ikke i claude.ai-rammen).
 - **UI-tekstene er godkjent** av Sven Erik (24.09.26). Endringer i `strings` skal godkjennes på nytt.
+- **Enhet felles med tabellen** (v1.1.0): `unit-pref.js` lagrer på samme nøkkel som før (`efsg-unit`) og sender
+  `efsg:unitchange` på `window`. Kalkulator og tabell følger hverandre live (kalkulatoren regner om feltene).
+
+## Size chart-tabell (`chart.js`, v1.1.0)
+Erstatter den gamle «Size & Width»-tabellen på produktsidene (Webflow CMS-mal, samme Embed på alle). Står under kalkulatoren.
+Oppdraget og designet er vedtatt av Sven Erik 28.09.26 – endringer i beslutningene under krever godkjenning.
+- **Data** fra samme `size-chart.json` som kalkulatoren. Ingen mål i koden eller Webflow. Ingen vekt, ingen break-over.
+- **Modell:** automatisk ved å sammenligne `location.pathname` med stien i `product_url` (uten domene, query,
+  avsluttende `/`, uavhengig av store/små bokstaver). Overstyring: `data-model="active"` eller `mountChart(el, { model })`.
+  **Ingen treff → ingenting vises** + én `console.warn` med tips om `data-model`. Tabellen viser aldri feil modell.
+  Ny modell i Excel med `product_url` virker uten kodeendring.
+- **Visning:** Regular og Slim som adskilte blokker, hver med bredde og lengde. cm med én desimal (`6.6`), tommer som
+  brøk til nærmeste 1/16, forkortet (`3 3/8`). Intervaller `6.6 – 7.5` (tankestrek). 1 mm < 1/16", så nabogrenser
+  kan vise samme tommeverdi – akseptert.
+- **Layout** (container queries): ≥ 640 px én tabell (Size | Regular | Slim); smalere to tabeller under hverandre
+  (på mobil hoppes en størrelse over i tabellen for en variant den mangler; desktop viser «–»).
+- **Tips-kort** (fast tekst fra katalogen s. 31, ikke skriv om) og knapper til `measure_guide_url` / `dealer_finder_url`.
+  «Add 4 mm (1/8 in)» er fast tekst – endres `fresh_trim_add_mm` i Excel, må teksten endres i `chart.js`.
+- `mountChart(element, options)` (også `window.EFSizeGuide.mountChart`). Options: `model`, `data`, `dataUrl`
+  (standard samme versjon som `chart.js`), `loadCss`, `onAnalytics`.
+- Farger som kalkulatoren; Slim-rader `#eef2fa` (`--efsc-slim-surface`), Slim-overskrift `#00359e`.
+- Embed-kode og Webflow-fremgangsmåte: `docs/webflow-size-chart.md`. Kalkulator og tabell skal alltid ha **samme versjons-tag**.
 
 ## Analytics
 Equine Fusion bruker **Google Analytics (GA4)**. Widgeten sender events via `gtag('event', …)` hvis `gtag` finnes på siden (bygd i fase 5 – full liste med parametere og GA4-oppsett i `docs/analytics.md`):
 - `sizeguide_calculate` – lengde, bredde (hele mm), enhet, `result_type` (`match`/`between`/`outside_wide`/`outside_narrow`/`no_match`/`invalid_input`), `trigger` (`form`/`shared_link`)
 - `sizeguide_result` – én per anbefalt modell (modell, størrelse, alternativ, utenfor tabell)
 - `sizeguide_click_dealer`, `sizeguide_click_product`, `sizeguide_click_measure_guide`
+  – dealer/målguide har `source: 'calculator' | 'chart'` (v1.1.0; `context` beholdes i kalkulatoren)
 - `sizeguide_share` – delbar lenke kopiert («Copy link» legger til `&src=share`)
 - `sizeguide_open_shared` – åpnet via delt lenke (distributør-bruk)
+- `sizeguide_chart_unit` – `{ model, unit }` når kunden bytter enhet **i tabellen** (v1.1.0)
 
-Enhetsbytte og reload/tilbake-knapp telles ikke (unngår dobbelttelling).
-Analytics-logikk ligger i `src/analytics.js` (rene funksjoner, testet) og kalles fra widget-laget, **aldri fra `engine.js`**. Widgeten må fungere selv om analytics mangler/blokkeres. Ingen personopplysninger i events.
+Enhetsbytte i kalkulatoren, synk mellom kalkulator og tabell, og reload/tilbake-knapp telles ikke (unngår dobbelttelling).
+`source` må registreres som custom dimension (event-scoped) i GA4 – fremgangsmåte i `docs/analytics.md`.
+Analytics-logikk ligger i `src/analytics.js` (rene funksjoner, testet) og kalles fra widget-/chart-laget, **aldri fra `engine.js`**. Widgeten må fungere selv om analytics mangler/blokkeres. Ingen personopplysninger i events.
 
 ## Kjente feil i gammel kalkulator (koden ligger i arkivmappen, `legacy/`) – skal ikke gjentas
 - Sjekket kun maks bredde, ikke min → smal hov kunne få for vid boot.
@@ -211,5 +243,9 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [x] Offentlig GitHub-repo `EquineFusion/ef-size-guide` opprettet og pushet (24.09.26). Commits bruker anonym adresse `309724780+SvenErik1987@users.noreply.github.com` (satt i repoets git-config). jsDelivr serverer filene.
 - [x] Første versjons-tag `v1.0.0` (24.09.26). Webflow-embed: `https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.0.0/src/widget.js`
 - [ ] Test i Webflow på staging (webflow.io) → GA4 DebugView → publiser på eqfusion.com. Fjern gammel kalkulator. Utføres av en kollega etter tre Word-guider (norsk, for ikke-tekniske) i den felles Excel-mappen: «Guide 1 – Webflow testadressen», «Guide 2 – Google Analytics», «Guide 3 – Publiser på eqfusion.com», pluss `Webflow-kode.txt` (embed-koden). **Oppdater guidene og `Webflow-kode.txt` hvis embed-kode, versjon eller fremgangsmåte endres.**
+- [x] Size chart-tabell for produktsidene (`chart.js`, fase 0–3 ferdig 29.09.26).
+- [ ] Publiser v1.1.0 (tabell + enhetssynk + `source`), legg tabellen i produktmalen i Webflow og fjern den gamle
+      «Size & Width»-tabellen (Word-guide «Fjerne gammel size chart – Webflow»). Bytt kalkulatoren til v1.1.0 samtidig,
+      og oppdater Word-guidene + `Webflow-kode.txt` i den felles mappen. Registrer `source` i GA4.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
 - [ ] Steg 2: velg metode for bildeanalyse.

@@ -1,0 +1,414 @@
+/* chart.css – Equine Fusion size chart table (chart.js)
+ * Everything is scoped under .efsc-root and all classes are prefixed efsc-,
+ * so the chart does not affect (or get affected by) the Webflow site styles.
+ * Mobile first. Layout adapts to the chart's own width (container queries), like widget.css.
+ * Colours are the same as the calculator (widget.css, --efsg-*).
+ */
+
+.efsc-root {
+  --efsc-accent: #062a56;          /* Regular heading, buttons, selected unit (= --efsg-accent) */
+  --efsc-accent-hover: #00359e;    /* button hover (= --efsg-accent-hover) */
+  --efsc-slim: #00359e;            /* Slim heading */
+  --efsc-accent-contrast: #ffffff;
+  --efsc-text: #1a1a1a;
+  --efsc-muted: #5c5c5c;
+  --efsc-border: #d9d9d9;
+  --efsc-surface: #ffffff;
+  --efsc-surface-alt: #f5f5f4;     /* Regular rows, tip cards */
+  --efsc-slim-surface: #eef2fa;    /* Slim rows */
+  --efsc-radius: 10px;
+  --efsc-touch: 52px;              /* min. height of buttons and table rows */
+
+  container-type: inline-size;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: var(--efsc-text);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.efsc-root *,
+.efsc-root *::before,
+.efsc-root *::after {
+  box-sizing: border-box;
+}
+
+/* Neutralise common site styles on the elements we use. */
+.efsc-root h2,
+.efsc-root h3,
+.efsc-root p,
+.efsc-root table,
+.efsc-root caption,
+.efsc-root th,
+.efsc-root td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.efsc-root :focus-visible {
+  outline: 3px solid var(--efsc-accent);
+  outline-offset: 2px;
+}
+
+.efsc-root .efsc-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Header: title, intro, pill, unit switch ---------- */
+
+.efsc-header {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.efsc-root .efsc-title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--efsc-text);
+}
+
+.efsc-root .efsc-intro {
+  margin-top: 0.4rem;
+  font-size: 16px;
+  color: var(--efsc-muted);
+}
+
+/* Narrow: pill left, switch right on the same line. */
+.efsc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.efsc-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0.2rem 0.85rem;
+  border: 1px solid var(--efsc-border);
+  border-radius: 999px;
+  background: var(--efsc-surface-alt);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--efsc-text);
+}
+
+/* Unit switch (cm / inches): same look as the calculator's. */
+.efsc-units {
+  display: inline-flex;
+  margin-left: auto;
+  border: 1px solid var(--efsc-border);
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--efsc-surface-alt);
+}
+
+.efsc-root .efsc-unit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--efsc-muted);
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+/* Very narrow: slimmer switch, so pill and switch still fit on one line. */
+@container (max-width: 400px) {
+  .efsc-root .efsc-unit {
+    min-width: 64px;
+    padding: 0 0.75rem;
+  }
+}
+
+.efsc-root .efsc-unit[aria-pressed='true'] {
+  background: var(--efsc-accent);
+  color: var(--efsc-accent-contrast);
+}
+
+/* Wide: title + intro + pill on the left, switch on the right. */
+@container (min-width: 640px) {
+  .efsc-header {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'heading units'
+      'pill    units';
+    column-gap: 2rem;
+    align-items: start;
+  }
+  .efsc-heading { grid-area: heading; }
+  .efsc-meta { display: contents; }
+  .efsc-pill { grid-area: pill; justify-self: start; }
+  .efsc-units { grid-area: units; }
+}
+
+/* ---------- Tables ---------- */
+
+.efsc-tables {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.efsc-root .efsc-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: transparent;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  table-layout: auto;
+}
+
+.efsc-root .efsc-table th,
+.efsc-root .efsc-table td {
+  height: var(--efsc-touch); /* acts as min-height for table cells */
+  padding: 0.5rem 0.9rem;
+  vertical-align: middle;
+  text-align: left;
+  font-weight: 400;
+  color: var(--efsc-text);
+  background-clip: padding-box; /* keeps the transparent borders below as gaps */
+  white-space: nowrap;
+}
+
+/* 2 px white gap between body rows. */
+.efsc-root .efsc-table tbody th,
+.efsc-root .efsc-table tbody td {
+  border-top: 2px solid transparent;
+}
+
+.efsc-root .efsc-table .efsc-size {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Column headings (Width / Length): grey with a 2 px underline in the block colour. */
+.efsc-root .efsc-table .efsc-col-head {
+  height: 44px;
+  font-size: 14px;
+  font-weight: 700;
+  background-color: var(--efsc-surface-alt);
+  box-shadow: inset 0 -2px 0 var(--efsc-accent);
+}
+
+.efsc-root .efsc-table .efsc-col-head.efsc-slim,
+.efsc-root .efsc-table-narrow.efsc-slim .efsc-col-head {
+  box-shadow: inset 0 -2px 0 var(--efsc-slim);
+}
+
+.efsc-root .efsc-table .efsc-cell.efsc-regular { background-color: var(--efsc-surface-alt); }
+.efsc-root .efsc-table .efsc-cell.efsc-slim { background-color: var(--efsc-slim-surface); }
+
+/* --- Wide layout: one table with a Regular and a Slim block --- */
+
+.efsc-root .efsc-table-wide {
+  display: none;
+}
+
+.efsc-root .efsc-table-wide .efsc-size-head {
+  vertical-align: bottom;
+  height: auto;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--efsc-border);
+}
+
+.efsc-root .efsc-table-wide .efsc-col-size {
+  width: 1%; /* as narrow as the content */
+}
+
+/* Regular / Slim heading above each block (coloured field, rounded top). */
+.efsc-root .efsc-table-wide .efsc-variant-head {
+  height: auto;
+  padding: 0;
+}
+
+.efsc-root .efsc-table-wide .efsc-variant-head.efsc-slim {
+  padding-left: 12px; /* 12 px gap between the Regular and Slim blocks */
+}
+
+.efsc-root .efsc-variant-label {
+  display: block;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--efsc-radius) var(--efsc-radius) 0 0;
+  background: var(--efsc-accent);
+  color: var(--efsc-accent-contrast);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.efsc-root .efsc-slim .efsc-variant-label {
+  background: var(--efsc-slim);
+}
+
+/* The first column of the Slim block starts 12 px to the right (gap between the blocks). */
+.efsc-root .efsc-table-wide .efsc-slim.efsc-block-start {
+  border-left: 12px solid transparent;
+}
+
+/* --- Narrow layout: one table per variant --- */
+
+.efsc-root .efsc-variant-caption {
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--efsc-radius) var(--efsc-radius) 0 0;
+  background: var(--efsc-accent);
+  color: var(--efsc-accent-contrast);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  caption-side: top;
+}
+
+.efsc-root .efsc-table-narrow.efsc-slim .efsc-variant-caption {
+  background: var(--efsc-slim);
+}
+
+.efsc-root .efsc-table-narrow tbody .efsc-size { background-color: var(--efsc-surface-alt); }
+.efsc-root .efsc-table-narrow.efsc-slim tbody .efsc-size { background-color: var(--efsc-slim-surface); }
+.efsc-root .efsc-table-narrow.efsc-slim .efsc-col-head { background-color: var(--efsc-slim-surface); }
+
+@container (max-width: 380px) {
+  .efsc-root .efsc-table th,
+  .efsc-root .efsc-table td {
+    padding: 0.5rem 0.6rem;
+  }
+}
+
+@container (min-width: 640px) {
+  .efsc-root .efsc-table-wide { display: table; }
+  .efsc-root .efsc-table-narrow { display: none; }
+}
+
+/* ---------- Tips ---------- */
+
+.efsc-tips {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.efsc-tip {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1.1rem;
+  border-radius: var(--efsc-radius);
+  background: var(--efsc-surface-alt);
+}
+
+.efsc-tip-text {
+  flex: 1 1 auto;
+}
+
+.efsc-root .efsc-tip-title {
+  margin-bottom: 0.3rem;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--efsc-text);
+}
+
+.efsc-root .efsc-tip p {
+  font-size: 15px;
+  color: var(--efsc-muted);
+}
+
+.efsc-tip-drawing {
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+@container (min-width: 640px) {
+  .efsc-tips {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ---------- Buttons ---------- */
+
+.efsc-actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.efsc-root .efsc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--efsc-touch);
+  margin: 0;
+  padding: 0.6rem 1.25rem;
+  border: 2px solid transparent;
+  border-radius: var(--efsc-radius);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.efsc-root .efsc-button-primary {
+  background: var(--efsc-accent);
+  color: var(--efsc-accent-contrast);
+}
+
+.efsc-root .efsc-button-primary:hover {
+  background: var(--efsc-accent-hover);
+  color: var(--efsc-accent-contrast);
+}
+
+.efsc-root .efsc-button-secondary {
+  background: var(--efsc-surface);
+  border-color: var(--efsc-accent);
+  color: var(--efsc-text);
+}
+
+.efsc-root .efsc-button-secondary:hover {
+  background: var(--efsc-surface-alt);
+  color: var(--efsc-text);
+}
+
+.efsc-root .efsc-help {
+  font-size: 15px;
+  color: var(--efsc-muted);
+}
+
+@container (min-width: 640px) {
+  .efsc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .efsc-root .efsc-button {
+    min-height: 48px;
+  }
+}
