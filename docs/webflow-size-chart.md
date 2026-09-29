@@ -12,12 +12,14 @@ brukt Webflow Designer før. Regn med ca. 30 minutter, pluss testing.
 
 ## Før du begynner
 
+- **Word-guide for den som gjør jobben:** «Guide 4 - Fjerne gammel size chart - Webflow.docx» i den
+  felles mappen (Nettsiden › Size chart master chart). Den dekker alt under, steg for steg, inkludert
+  fjerning av den gamle tabellen. Denne filen er den tekniske oversikten.
 - **Versjon:** Koden under bruker `v1.1.0`. Kalkulatoren (som står over tabellen) skal ha
-  **samme versjon**. Står kalkulatoren fortsatt på `v1.0.0`, bytt den til `v1.1.0` samtidig
-  (se `docs/webflow-embed.md`, avsnitt 3). Ellers følger ikke kalkulatoren og tabellen hverandre
-  når kunden bytter mellom cm og inches.
-- **Fjerning av den gamle tabellen** er beskrevet i Word-guiden **«Fjerne gammel size chart – Webflow»**.
-  Ikke fjern den gamle før den nye er testet på testadressen (steg 4).
+  **samme versjon**. Kalkulatoren ligger i produktmalen på `v1.0.0` (sett live 29.09.26) – bytt den
+  til `v1.1.0` samtidig. Ellers følger ikke kalkulatoren og tabellen hverandre når kunden bytter
+  mellom cm og inches.
+- **Den gamle tabellen** skjules først når den nye er testet på testadressen (steg 4).
 - Du trenger tilgang til Webflow-prosjektet for eqfusion.com med rett til å redigere og publisere.
 
 ## Koden som skal limes inn
@@ -49,19 +51,30 @@ og fyller boksen. Det er ingen mål i Webflow – alt kommer fra Excel-filen via
 
 ## 2. Finn plassen der den gamle tabellen står
 
-1. Rull ned på siden i Designer til seksjonen **«Size & Width»** med den gamle tabellen.
-2. Åpne **Navigator** (ikonet med lagdelte firkanter i venstremenyen) – den viser alle elementene
-   som en liste. Klikk på den gamle tabellen på siden, så markeres den i Navigator.
-3. Kalkulatoren skal stå **over** den nye tabellen, slik den gjør i dag.
+Slik er produktmalen bygget i dag (sjekket på eqfusion.com 29.09.26):
 
-## 3. Legg inn Embed-elementet
+```
+Main Wrapper
+├─ Code Embed  ← kalkulatoren (ef-size-guide, v1.0.0)
+├─ …
+└─ Section Table10
+   └─ Page Padding › Container Large › Padding Vertical
+      └─ Table10 Component  ← den gamle tabellen («Size & Width» + CMS-listen #cms-product-size-guide)
+```
 
-1. Klikk **Add elements** (plusstegnet øverst i venstremenyen).
-2. Under **Advanced**: dra **Embed** inn i «Size & Width»-seksjonen, rett **under** den gamle tabellen
-   (den gamle fjernes senere, se Word-guiden).
-3. Et vindu for kode åpnes. Lim inn koden over. Klikk **Save & Close**.
-4. I Designer vises bare en grå boks med teksten «Custom code». **Det er normalt** –
-   Webflow kjører ikke koden i Designer. Tabellen vises først på den publiserte siden.
+1. Åpne **Navigator** (ikonet med lagdelte firkanter i venstremenyen) – den viser alle elementene
+   som en liste. Klikk på den gamle «Size & Width»-tabellen på siden, så markeres **Table10 Component**.
+2. Kalkulatoren står **over** tabellen, slik den skal.
+
+## 3. Legg inn Embed-elementet (og oppdater kalkulatoren)
+
+1. Kalkulatorens Code Embed: bytt `@v1.0.0` til `@v1.1.0` → **Save & Close**.
+2. Klikk **Add elements** (plusstegnet øverst i venstremenyen).
+3. Under **Advanced**: dra **Code Embed** inn i **Padding Vertical**, rett **under Table10 Component**
+   (samme nivå, ikke inni den).
+4. Et vindu for kode åpnes. Lim inn koden over. Klikk **Save & Close**.
+5. I Designer vises bare en grå boks. **Det er normalt** – Webflow kjører ikke koden i Designer.
+   Tabellen vises først på den publiserte siden.
 
 ## 4. Publiser til testadressen og test
 
@@ -91,15 +104,18 @@ Står det `[EF size chart] No model has product_url matching …`, stemmer ikke 
 `product_url` i Excel. Rett `product_url` i Excel (og publiser ny versjon), eller be Claude om hjelp.
 
 **Andre produkter i samme mal** (f.eks. tilbehør) får ingen tabell – det er med vilje. Tabellen
-viser aldri feil modell. Står det en overskrift rundt Embed-elementet i «Size & Width»-seksjonen,
-vil den fortsatt synes på disse sidene. Sjekk det, og si fra hvis det må skjules.
+viser aldri feil modell. Overskriften «Size & Width» ligger inni Table10 Component, så den
+forsvinner sammen med den gamle tabellen – det blir ingen tom overskrift.
 
-## 5. Publiser på eqfusion.com
+## 5. Skjul den gamle tabellen og publiser på eqfusion.com
 
 Når alt i sjekklisten er i orden på testadressen:
 
-1. Fjern den gamle tabellen etter Word-guiden «Fjerne gammel size chart – Webflow», og publiser til
-   testadressen igjen for en siste kontroll.
+1. Marker **Table10 Component** → **Element settings** (tannhjulet, tast D) → **Visibility: Hidden**.
+   **Ikke** bruk *Display: None* i Style-panelet – det endrer klassen `table10_component` og kan skjule
+   tabeller andre steder på nettstedet. **Ikke slett** den – den inneholder CMS-listen
+   `#cms-product-size-guide`, som ikke skal fjernes før Sven Erik sier fra.
+   Publiser til testadressen igjen for en siste kontroll.
 2. **Publish** → huk av for **eqfusion.com** (og testadressen) → **Publish to selected domains**.
 3. Åpne en produktside på eqfusion.com og gå gjennom sjekklisten raskt én gang til.
 4. GA4: se `docs/analytics.md` for å registrere den nye parameteren `source` og teste i DebugView.
@@ -109,8 +125,8 @@ Når alt i sjekklisten er i orden på testadressen:
 ## Angre
 
 - **Noe er galt med tabellen etter publisering:** Åpne produktmalen → marker Embed-elementet i
-  **Navigator** → trykk **Delete** på tastaturet. Legg tilbake den gamle tabellen hvis den er fjernet
-  (se Word-guiden). Publiser.
+  **Navigator** → trykk **Delete** på tastaturet. Sett **Table10 Component** tilbake til
+  *Visibility: Visible*. Publiser.
   Webflow har også **Backups** (Site settings → Backups) som kan gjenopprette en tidligere versjon av hele siden.
 - **Feil i en ny versjon (f.eks. `v1.1.1`):** Bytt versjonen i koden tilbake til forrige (f.eks. `@v1.1.0`)
   og publiser. Gamle versjoner ligger alltid på jsDelivr.

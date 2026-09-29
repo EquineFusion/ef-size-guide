@@ -242,10 +242,14 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [ ] Slett/arkiver gammel prosjektmappe i OneDrive når Sven Erik har bekreftet at alt virker (inkl. den gamle kopien av Excel-filen, så ingen redigerer feil fil).
 - [x] Offentlig GitHub-repo `EquineFusion/ef-size-guide` opprettet og pushet (24.09.26). Commits bruker anonym adresse `309724780+SvenErik1987@users.noreply.github.com` (satt i repoets git-config). jsDelivr serverer filene.
 - [x] Første versjons-tag `v1.0.0` (24.09.26). Webflow-embed: `https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.0.0/src/widget.js`
-- [ ] Test i Webflow på staging (webflow.io) → GA4 DebugView → publiser på eqfusion.com. Fjern gammel kalkulator. Utføres av en kollega etter tre Word-guider (norsk, for ikke-tekniske) i den felles Excel-mappen: «Guide 1 – Webflow testadressen», «Guide 2 – Google Analytics», «Guide 3 – Publiser på eqfusion.com», pluss `Webflow-kode.txt` (embed-koden). **Oppdater guidene og `Webflow-kode.txt` hvis embed-kode, versjon eller fremgangsmåte endres.**
+- [x] Kalkulatoren v1.0.0 er live på eqfusion.com i produktmalen (Code Embed rett i Main Wrapper), gammel kalkulator skjult – sett 29.09.26. (GA4-delen av Guide 2 er ikke bekreftet.)
+  Utført av en kollega etter tre Word-guider (norsk, for ikke-tekniske) i den felles Excel-mappen: «Guide 1 – Webflow testadressen», «Guide 2 – Google Analytics», «Guide 3 – Publiser på eqfusion.com», pluss `Webflow-kode.txt` (embed-koden). **Oppdater guidene og `Webflow-kode.txt` hvis embed-kode, versjon eller fremgangsmåte endres.**
 - [x] Size chart-tabell for produktsidene (`chart.js`, fase 0–3 ferdig 29.09.26).
-- [ ] Publiser v1.1.0 (tabell + enhetssynk + `source`), legg tabellen i produktmalen i Webflow og fjern den gamle
-      «Size & Width»-tabellen (Word-guide «Fjerne gammel size chart – Webflow»). Bytt kalkulatoren til v1.1.0 samtidig,
-      og oppdater Word-guidene + `Webflow-kode.txt` i den felles mappen. Registrer `source` i GA4.
+- [x] v1.1.0 tagget og pushet (29.09.26), filene verifisert på jsDelivr. Delbar testside oppdatert.
+      Word-guidene 1 og 3 + `Webflow-kode.txt` oppdatert til v1.1.0; ny «Guide 4 - Fjerne gammel size chart - Webflow.docx».
+- [ ] Webflow (kollega, Guide 4): kalkulatoren → v1.1.0, ny Code Embed med tabellen rett under «Table10 Component»
+      (Section Table10 › … › Padding Vertical), test på staging, skjul «Table10 Component» med **Element settings →
+      Visibility: Hidden** (ikke Display: None – endrer klassen), publiser. Registrer `source` i GA4.
+- [ ] Slett den gamle tabellen og CMS-samlingen `#cms-product-size-guide` når Sven Erik sier fra.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
 - [ ] Steg 2: velg metode for bildeanalyse.
