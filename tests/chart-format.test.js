@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { formatLength, formatRange, buildChartRows, findModelByPath } from '../src/chart-format.js';
+import { formatLength, formatRange, buildChartRows, findModelByPath, isSamePath } from '../src/chart-format.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data', 'size-chart.json'), 'utf8'));
@@ -103,4 +103,19 @@ test('findModelByPath: unknown paths → null (never a wrong model)', () => {
   assert.equal(findModelByPath(data, '/'), null);
   assert.equal(findModelByPath(data, ''), null);
   assert.equal(findModelByPath(data, undefined), null);
+});
+
+test('isSamePath: the measuring guide page links to itself', () => {
+  const url = data.settings.measure_guide_url;
+  const pagePath = new URL(url).pathname;
+  assert.equal(isSamePath(url, pagePath), true);
+  assert.equal(isSamePath(url, pagePath + '/'), true);
+  assert.equal(isSamePath(url, pagePath + '?l=11.8&w=11.0&u=cm'), true);
+  assert.equal(isSamePath(url, pagePath.toUpperCase()), true);
+  // Product pages and other pages are not the measuring guide.
+  assert.equal(isSamePath(url, '/products/active-jogging-shoe'), false);
+  assert.equal(isSamePath(url, '/demo/'), false);
+  assert.equal(isSamePath(url, '/'), false);
+  assert.equal(isSamePath('', '/'), false);
+  assert.equal(isSamePath(undefined, pagePath), false);
 });

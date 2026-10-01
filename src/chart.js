@@ -13,22 +13,31 @@
 // (chart-format.js → findModelByPath). Override with data-model="active" on the element
 // or mountChart(el, { model: 'active' }). No model found → nothing is shown (never a wrong model).
 //
+// On a page that is not a product page (the "How to measure" page), use the model picker:
+//   mountChart(el, { picker: true, tips: false });
+// It shows one button per model and starts with the first model in the data.
+//
 // Options (all optional):
 //   model     model_id to show (default: data-model on the element, else found from the page address)
+//   picker    true = show buttons to switch between the models (default: false)
+//   tips      false = leave out the three tip cards (default: true)
 //   data      the size chart object itself (skips loading dataUrl – used by the shareable test page)
 //   dataUrl   URL of size-chart.json (default: ../data/size-chart.json next to this file = same version)
 //   loadCss   inject chart.css (default: true)
 //   onAnalytics  function(name, params) – called with every analytics event (debug panel).
 //                Events go to GA4 via window.gtag automatically if the page has it (see analytics.js):
 //                sizeguide_click_measure_guide / sizeguide_click_dealer with source: 'chart',
-//                and sizeguide_chart_unit when the customer switches unit in the chart.
+//                sizeguide_chart_unit when the customer switches unit in the chart,
+//                and sizeguide_chart_model when the customer picks another model.
+//
+// The "Full measuring guide" button is left out automatically on the measuring guide page itself.
 //
 // Rules for this file:
 //   - No dependencies. No measurements here – everything comes from size-chart.json.
 //   - All customer-facing text is in `strings` below.
 //   - All classes are prefixed `efsc-`; all CSS is scoped under `.efsc-root` (chart.css).
 
-import { buildChartRows, findModelByPath, formatRange } from './chart-format.js';
+import { buildChartRows, findModelByPath, formatRange, isSamePath } from './chart-format.js';
 import { UNITS, readStoredUnit, saveUnit, onUnitChange } from './unit-pref.js';
 import { sendEvent } from './analytics.js';
 
@@ -43,6 +52,7 @@ export const strings = {
   unitLegend: 'Unit',
   unitNames: { cm: 'cm', in: 'inches' },
   unitShort: { cm: 'cm', in: 'in' },
+  modelLegend: 'Model', // screen-reader name of the model picker (the buttons show the model names)
 
   size: 'Size',
   variants: { regular: 'Regular', slim: 'Slim' },
@@ -122,13 +132,17 @@ export async function mountChart(element, options = {}) {
   }
 
   // --- Which model? -------------------------------------------------------------
+  // Models that can be shown: active, with at least one size. Same order as in the data (sort_order).
+  const showPicker = options.picker === true;
+  const models = data.models.filter((m) => m.active !== false && buildChartRows(data, m.model_id).length > 0);
   const wanted = options.model || element.getAttribute('data-model');
-  const model = wanted
-    ? data.models.find((m) => m.model_id === wanted && m.active !== false)
-    : findModelByPath(data, window.location.pathname);
-  const rows = model ? buildChartRows(data, model.model_id) : [];
+  let model = wanted
+    ? models.find((m) => m.model_id === wanted)
+    : models.find((m) => m === findModelByPath(data, window.location.pathname));
+  // With the model picker there is always something to show: start with the first model.
+  if (!model && showPicker && !wanted) model = models[0];
 
-  if (!model || rows.length === 0) {
+  if (!model) {
     console.warn(
       wanted
         ? `[EF size chart] No active model "${wanted}" with sizes in size-chart.json – the size chart is not shown.`
@@ -137,10 +151,23 @@ export async function mountChart(element, options = {}) {
     );
     return null;
   }
+  let rows = buildChartRows(data, model.model_id);
 
   // --- Build the static parts ---------------------------------------------------
-  const root = el('section', { class: 'efsc-root', 'aria-label': strings.title(model.name) });
+  const root = el('section', { class: 'efsc-root' });
   let unit = readStoredUnit() || 'cm';
+
+  // Model picker (only with options.picker): one button per model.
+  const modelButtons = !showPicker ? [] : models.map((m) => {
+    const button = el('button', { type: 'button', class: 'efsc-model', 'data-model': m.model_id }, m.name);
+    button.addEventListener('click', () => {
+      if (m === model) return;
+      setModel(m);
+      track('sizeguide_chart_model', { model: m.model_id });
+    });
+    return button;
+  });
+  const picker = showPicker ? el('div', { class: 'efsc-models', role: 'group', 'aria-label': strings.modelLegend }, modelButtons) : null;
 
   const unitButtons = UNITS.map((u) => {
     const button = el('button', { type: 'button', class: 'efsc-unit', 'data-unit': u }, strings.unitNames[u]);
@@ -154,26 +181,25 @@ export async function mountChart(element, options = {}) {
   });
   const unitGroup = el('div', { class: 'efsc-units', role: 'group', 'aria-label': strings.unitLegend }, unitButtons);
 
+  const title = el('h2', { class: 'efsc-title' });
+  const pill = el('span', { class: 'efsc-pill' });
   const header = el('div', { class: 'efsc-header' }, [
-    el('div', { class: 'efsc-heading' }, [
-      el('h2', { class: 'efsc-title' }, strings.title(model.name)),
-      el('p', { class: 'efsc-intro' }, strings.intro),
-    ]),
-    el('div', { class: 'efsc-meta' }, [
-      strings.soldAs[model.sold_as] ? el('span', { class: 'efsc-pill' }, strings.soldAs[model.sold_as]) : null,
-      unitGroup,
-    ]),
+    el('div', { class: 'efsc-heading' }, [title, el('p', { class: 'efsc-intro' }, strings.intro)]),
+    el('div', { class: 'efsc-meta' }, [pill, unitGroup]),
   ]);
 
   const tables = el('div', { class: 'efsc-tables' });
 
-  const measureTip = tipCard(strings.tips.measure);
-  const drawing = el('div', { class: 'efsc-tip-drawing' });
-  drawing.innerHTML = HOOF_SVG; // fixed markup from this file, never data
-  measureTip.append(drawing);
-  measureTip.classList.add('efsc-tip-measure');
-
-  const tips = el('div', { class: 'efsc-tips' }, [measureTip, tipCard(strings.tips.trimmed), tipCard(strings.tips.underrun)]);
+  // Tips (can be turned off where the page already explains how to measure).
+  let tips = null;
+  if (options.tips !== false) {
+    const measureTip = tipCard(strings.tips.measure);
+    const drawing = el('div', { class: 'efsc-tip-drawing' });
+    drawing.innerHTML = HOOF_SVG; // fixed markup from this file, never data
+    measureTip.append(drawing);
+    measureTip.classList.add('efsc-tip-measure');
+    tips = el('div', { class: 'efsc-tips' }, [measureTip, tipCard(strings.tips.trimmed), tipCard(strings.tips.underrun)]);
+  }
 
   // Links open in the same tab (like the calculator). A click is tracked; the link still works normally.
   const trackedLink = (className, href, text, eventName) => {
@@ -182,25 +208,47 @@ export async function mountChart(element, options = {}) {
     link.addEventListener('click', () => track(eventName, { source: 'chart', model: model.model_id }));
     return link;
   };
+  // No link to the measuring guide when the chart is on the measuring guide page itself.
+  const measureUrl = data.settings.measure_guide_url;
+  const onMeasurePage = isSamePath(measureUrl, window.location.pathname);
   const actions = el('div', { class: 'efsc-actions' }, [
-    trackedLink('efsc-button-primary', data.settings.measure_guide_url, strings.measureGuide, 'sizeguide_click_measure_guide'),
+    !onMeasurePage && trackedLink('efsc-button-primary', measureUrl, strings.measureGuide, 'sizeguide_click_measure_guide'),
     trackedLink('efsc-button-secondary', data.settings.dealer_finder_url, strings.findDealer, 'sizeguide_click_dealer'),
     el('p', { class: 'efsc-help' }, strings.dealerHelp),
   ]);
 
-  root.append(header, tables, tips, actions);
+  root.append(...[picker, header, tables, tips, actions].filter(Boolean));
   element.replaceChildren(root);
 
-  // --- Unit ----------------------------------------------------------------------
-  // Only the tables are redrawn, so keyboard focus stays on the unit button.
+  // --- Model and unit -------------------------------------------------------------
+  // Only the tables are redrawn, so keyboard focus stays on the button that was pressed.
+  function drawTables() {
+    tables.replaceChildren(wideTable(model, rows, unit), ...VARIANTS.map((v) => narrowTable(model, rows, v, unit)));
+  }
+
+  function setModel(newModel) {
+    model = newModel;
+    rows = buildChartRows(data, model.model_id);
+    root.setAttribute('aria-label', strings.title(model.name));
+    title.textContent = strings.title(model.name);
+    pill.textContent = strings.soldAs[model.sold_as] || '';
+    pill.hidden = !strings.soldAs[model.sold_as];
+    for (const button of modelButtons) {
+      button.setAttribute('aria-pressed', String(button.dataset.model === model.model_id));
+    }
+    drawTables();
+  }
+
   function setUnit(newUnit) {
     unit = newUnit;
     for (const button of unitButtons) {
       button.setAttribute('aria-pressed', String(button.dataset.unit === unit));
     }
-    tables.replaceChildren(wideTable(model, rows, unit), ...VARIANTS.map((v) => narrowTable(model, rows, v, unit)));
+    drawTables();
   }
-  setUnit(unit);
+
+  for (const button of unitButtons) button.setAttribute('aria-pressed', String(button.dataset.unit === unit));
+  setModel(model);
 
   // The calculator on the same page changed the unit → follow it.
   const stopListening = onUnitChange(root, (newUnit) => {

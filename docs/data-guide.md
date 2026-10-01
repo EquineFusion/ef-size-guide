@@ -33,8 +33,8 @@ oppdaterer begge. Det står ingen mål i Webflow eller i koden.
 | 1 | **Endre Excel** | Den som har målene | Åpne `size-chart.xlsx`, endre tallene i arket `sizes`, skriv kilde i `source`, og sett `data_version` i `settings` til dagens dato. Vent på grønn hake i OneDrive. |
 | 2 | **Bygg** | Sven Erik / Claude | `npm run build-data`. Står det `FEIL`, rett i Excel og kjør igjen (se steg 2 under). |
 | 3 | **Test** | Sven Erik / Claude | `npm test` skal være grønn. Åpne testsiden (`npm run dev`) og sjekk tabellen og noen mål i kalkulatoren. |
-| 4 | **Ny versjon** | Sven Erik / Claude | Commit, ny versjons-tag (f.eks. `v1.1.1`) og push til GitHub. Sjekk at filen finnes på jsDelivr. |
-| 5 | **Bytt versjon i Webflow** | Den som har Webflow | Bytt f.eks. `@v1.1.0` til `@v1.1.1` i **begge** Embed-kodene (kalkulatoren og tabellen i produktmalen). Publiser på testadressen, sjekk, så eqfusion.com. |
+| 4 | **Ny versjon** | Sven Erik / Claude | Commit, ny versjons-tag (f.eks. `v1.2.1`) og push til GitHub. Sjekk at filen finnes på jsDelivr. |
+| 5 | **Bytt versjon i Webflow** | Den som har Webflow | Bytt f.eks. `@v1.2.0` til `@v1.2.1` i **begge** Embed-kodene (kalkulatoren og tabellen i produktmalen). Publiser på testadressen, sjekk, så eqfusion.com. |
 
 **Angre:** bytt tilbake til forrige versjon i Webflow og publiser. Detaljer: `docs/webflow-embed.md`
 og `docs/webflow-size-chart.md`.

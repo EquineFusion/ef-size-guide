@@ -16,6 +16,7 @@
 //   sizeguide_share               "Copy link"
 //   sizeguide_open_shared         page opened from a shared link (?src=share)
 //   sizeguide_chart_unit          unit switched in the size chart table (model, unit)
+//   sizeguide_chart_model         another model picked in the size chart's model picker (model)
 
 /**
  * Send one event. Never throws.

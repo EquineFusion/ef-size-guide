@@ -19,6 +19,7 @@ Ingen personopplysninger sendes. Mål sendes avrundet til hele millimeter.
 | `sizeguide_share` | «Copy link» | `method` (`clipboard` / `manual`) |
 | `sizeguide_open_shared` | Siden åpnes fra en delt lenke (`&src=share`) | `unit` |
 | `sizeguide_chart_unit` | Kunden bytter cm/inches **i size chart-tabellen** | `model`, `unit` |
+| `sizeguide_chart_model` | Kunden velger en annen modell med modellknappene (kun på «How to measure»-siden, fra v1.2.0) | `model` |
 
 Fra size chart-tabellen sendes `sizeguide_click_dealer` og `sizeguide_click_measure_guide` med
 `source: 'chart'` og `model` (modellen på produktsiden). Tabellen har ikke `context`, `size` eller `outside_chart`.
@@ -31,6 +32,9 @@ Fra size chart-tabellen sendes `sizeguide_click_dealer` og `sizeguide_click_meas
 - `outside_chart`: `no` · `wide` · `narrow`
 - `alternative_size`: størrelsen i «Near the upper limit»-rådet, eller `none`
 - `unit`: `cm` · `in`
+
+`sizeguide_chart_model` viser hvilke size charts kundene ser på. Modellen som vises først (Trailblazer)
+telles ikke – bare aktive valg. `model` er allerede registrert som custom dimension, så ingen nytt oppsett trengs.
 
 ### Hva telles ikke
 - Omregning ved bytte cm ↔ inches i kalkulatoren.

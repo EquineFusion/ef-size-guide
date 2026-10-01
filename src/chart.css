@@ -69,6 +69,52 @@
   white-space: nowrap;
 }
 
+/* ---------- Model picker (only with the `picker` option) ---------- */
+
+/* Narrow: two buttons per row. Wide: all on one row. */
+.efsc-models {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.efsc-root .efsc-model {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin: 0;
+  padding: 0.5rem 1.25rem;
+  border: 2px solid var(--efsc-accent);
+  border-radius: var(--efsc-radius);
+  background: var(--efsc-surface);
+  color: var(--efsc-text);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.efsc-root .efsc-model:hover {
+  background: var(--efsc-surface-alt);
+}
+
+.efsc-root .efsc-model[aria-pressed='true'] {
+  background: var(--efsc-accent);
+  color: var(--efsc-accent-contrast);
+}
+
+@container (min-width: 640px) {
+  .efsc-models {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .efsc-root .efsc-model {
+    min-width: 140px;
+  }
+}
+
 /* ---------- Header: title, intro, pill, unit switch ---------- */
 
 .efsc-header {
@@ -109,6 +155,10 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--efsc-text);
+}
+
+.efsc-pill[hidden] {
+  display: none;
 }
 
 /* Unit switch (cm / inches): same look as the calculator's. */

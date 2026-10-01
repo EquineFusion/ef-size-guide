@@ -178,7 +178,12 @@ Oppdraget og designet er vedtatt av Sven Erik 28.09.26 – endringer i beslutnin
 - **Tips-kort** (fast tekst fra katalogen s. 31, ikke skriv om) og knapper til `measure_guide_url` / `dealer_finder_url`.
   «Add 4 mm (1/8 in)» er fast tekst – endres `fresh_trim_add_mm` i Excel, må teksten endres i `chart.js`.
 - `mountChart(element, options)` (også `window.EFSizeGuide.mountChart`). Options: `model`, `data`, `dataUrl`
-  (standard samme versjon som `chart.js`), `loadCss`, `onAnalytics`.
+  (standard samme versjon som `chart.js`), `loadCss`, `onAnalytics`, `picker`, `tips`.
+- **Modellknapper (v1.2.0, vedtatt 01.10.26):** `picker: true` viser én knapp per modell (rekkefølge som i data,
+  første modell vises ved start – Trailblazer). Brukes på «How to measure»-siden, som ikke er en produktside.
+  Der også `tips: false` (siden forklarer måling selv). Lenker til målguiden skjules **automatisk** i både
+  kalkulator og tabell når `measure_guide_url` peker til siden man er på (`isSamePath` i `chart-format.js`).
+  Produktsidene er uendret (ingen knapper, adressen styrer). Event: `sizeguide_chart_model` `{ model }`.
 - Farger som kalkulatoren; Slim-rader `#eef2fa` (`--efsc-slim-surface`), Slim-overskrift `#00359e`.
 - Embed-kode og Webflow-fremgangsmåte: `docs/webflow-size-chart.md`. Kalkulator og tabell skal alltid ha **samme versjons-tag**.
 
@@ -191,6 +196,7 @@ Equine Fusion bruker **Google Analytics (GA4)**. Widgeten sender events via `gta
 - `sizeguide_share` – delbar lenke kopiert («Copy link» legger til `&src=share`)
 - `sizeguide_open_shared` – åpnet via delt lenke (distributør-bruk)
 - `sizeguide_chart_unit` – `{ model, unit }` når kunden bytter enhet **i tabellen** (v1.1.0)
+- `sizeguide_chart_model` – `{ model }` når kunden velger modell med modellknappene (v1.2.0)
 
 Enhetsbytte i kalkulatoren, synk mellom kalkulator og tabell, og reload/tilbake-knapp telles ikke (unngår dobbelttelling).
 `source` må registreres som custom dimension (event-scoped) i GA4 – fremgangsmåte i `docs/analytics.md`.
@@ -250,6 +256,9 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [ ] Webflow (kollega, Guide 4): kalkulatoren → v1.1.0, ny Code Embed med tabellen rett under «Table10 Component»
       (Section Table10 › … › Padding Vertical), test på staging, skjul «Table10 Component» med **Element settings →
       Visibility: Hidden** (ikke Display: None – endrer klassen), publiser. Registrer `source` i GA4.
+- [ ] «How to measure»-siden (`/how-to-measure-for-equine-fusion-jogging-shoes`, én Code Embed med håndskrevet HTML):
+      bytt blokken `ef-size-section` («Compare Your Measurements») med kalkulator + tabell med modellknapper.
+      Bygd 01.10.26; gjenstår: godkjenning, tag v1.2.0, Word-guide, Webflow. Kode i `docs/webflow-size-chart.md`.
 - [ ] Slett den gamle tabellen og CMS-samlingen `#cms-product-size-guide` når Sven Erik sier fra.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
 - [ ] Steg 2: velg metode for bildeanalyse.

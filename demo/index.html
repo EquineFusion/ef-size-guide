@@ -65,19 +65,20 @@
       <div id="size-guide"></div>
     </div>
 
-    <!-- Test only: on the product pages the model is found from the page address. -->
+    <!-- Test only: choose which page the size chart should behave like. -->
     <div class="model-picker">
-      <label for="chart-model">Size chart for (test only):</label>
-      <select id="chart-model">
-        <option value="active">Active</option>
-        <option value="trailblazer">Trailblazer</option>
-        <option value="ultra">Ultra</option>
-        <option value="trekking">Trekking</option>
+      <label for="chart-mode">Size chart as on (test only):</label>
+      <select id="chart-mode">
+        <option value="measure">How to measure page (model buttons, no tips)</option>
+        <option value="active">Product page: Active</option>
+        <option value="trailblazer">Product page: Trailblazer</option>
+        <option value="ultra">Product page: Ultra</option>
+        <option value="trekking">Product page: Trekking</option>
       </select>
     </div>
 
     <div class="widget-box">
-      <div id="size-chart" data-model="active"></div>
+      <div id="size-chart"></div>
     </div>
 
     <!-- Debug panel: only on this test page, not part of the widget. -->
@@ -112,16 +113,17 @@
       onAnalytics: showEvent,
     });
 
-    // Size chart with a model picker (?model=trailblazer also works, handy for testing on a phone).
+    // Size chart, either as on the "How to measure" page (built-in model buttons, no tip cards)
+    // or as on one product page. ?model=trailblazer also works, handy for testing on a phone.
     const chart = document.getElementById('size-chart');
-    const picker = document.getElementById('chart-model');
+    const mode = document.getElementById('chart-mode');
     const startModel = new URLSearchParams(location.search).get('model');
-    if (startModel && [...picker.options].some((o) => o.value === startModel)) picker.value = startModel;
+    if (startModel && [...mode.options].some((o) => o.value === startModel)) mode.value = startModel;
     const showChart = () => {
-      chart.dataset.model = picker.value;
-      mountChart(chart, { onAnalytics: showEvent });
+      const options = mode.value === 'measure' ? { picker: true, tips: false } : { model: mode.value };
+      mountChart(chart, { ...options, onAnalytics: showEvent });
     };
-    picker.addEventListener('change', showChart);
+    mode.addEventListener('change', showChart);
     showChart();
 
     // Show which data version the page is using.

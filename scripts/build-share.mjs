@@ -134,13 +134,15 @@ ${read('src/chart.css')}
   </div>
 
   <div class="model-picker">
-    <label for="chart-model">Size chart for:</label>
-    <select id="chart-model">
-${data.models.map((m) => `      <option value="${m.model_id}">${m.name}</option>`).join('\n')}
+    <label for="chart-mode">Show the size chart as on:</label>
+    <select id="chart-mode">
+      <option value="measure">How to measure page (model buttons)</option>
+${data.models.map((m) => `      <option value="${m.model_id}">Product page: ${m.name}</option>`).join('\n')}
     </select>
   </div>
   <p class="tester-note">
-    On the website, each product page shows only the size chart for that product. The menu above is for testing.
+    The menu above is only for testing. The "How to measure" page gets the model buttons;
+    each product page shows only the size chart for that product.
   </p>
 
   <div class="widget-box">
@@ -181,13 +183,14 @@ mount(container, {
   onAnalytics: showEvent,
 });
 
-// Size chart with a model picker (on the website the model comes from the product page address).
+// Size chart: as on the "How to measure" page (model buttons, no tip cards) or as on a product page.
 const chartElement = document.getElementById('size-chart');
-const picker = document.getElementById('chart-model');
+const mode = document.getElementById('chart-mode');
 const showChart = () => {
-  window.EFSizeGuide.mountChart(chartElement, { model: picker.value, data: SIZE_CHART, loadCss: false, onAnalytics: showEvent });
+  const options = mode.value === 'measure' ? { picker: true, tips: false } : { model: mode.value };
+  window.EFSizeGuide.mountChart(chartElement, { ...options, data: SIZE_CHART, loadCss: false, onAnalytics: showEvent });
 };
-picker.addEventListener('change', showChart);
+mode.addEventListener('change', showChart);
 showChart();
 
 // Example buttons: fill in the form and calculate.

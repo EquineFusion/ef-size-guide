@@ -5,6 +5,7 @@
 //   formatRange(minMm, maxMm, unit)   "6.6 – 7.5"
 //   buildChartRows(data, modelId)     one row per size, with Regular and Slim side by side
 //   findModelByPath(data, pathname)   which model's product page are we on?
+//   isSamePath(url, pathname)         does a link point to the page we are already on?
 
 const MM_PER_INCH = 25.4;
 
@@ -72,6 +73,16 @@ export function findModelByPath(data, pathname) {
   const target = normalisePath(pathname);
   if (!target) return null;
   return data.models.find((m) => m.active !== false && m.product_url && normalisePath(m.product_url) === target) || null;
+}
+
+/**
+ * Does `url` point to the page the customer is already on (`pathname`)?
+ * Same comparison as findModelByPath: path only. Used to hide links to the measuring guide
+ * when the calculator / chart sits on the measuring guide page itself.
+ */
+export function isSamePath(url, pathname) {
+  const a = normalisePath(url);
+  return a !== null && a === normalisePath(pathname);
 }
 
 // "/Products/Active/?x=1#top" or "https://www.eqfusion.com/products/active/" → "/products/active"

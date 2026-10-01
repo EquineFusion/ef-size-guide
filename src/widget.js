@@ -29,6 +29,7 @@ import { recommend } from './engine.js';
 import { formatMeasurement, normaliseUnit, parseMeasurement } from './units.js';
 import { sendEvent, calculateEvent, resultEvents } from './analytics.js';
 import { UNITS, readStoredUnit, saveUnit, onUnitChange } from './unit-pref.js';
+import { isSamePath } from './chart-format.js';
 
 // ---------------------------------------------------------------------------
 // Customer-facing text (English). Add other languages later by swapping this object.
@@ -216,8 +217,14 @@ export async function mount(element, options = {}) {
   }
   status.remove();
   submit.removeAttribute('disabled');
-  measureLink.href = data.settings.measure_guide_url;
-  measureLink.addEventListener('click', () => track('sizeguide_click_measure_guide', { source: 'calculator', context: 'form' }));
+  // No "How to measure" links when the calculator is on the measuring guide page itself.
+  const onMeasurePage = isSamePath(data.settings.measure_guide_url, window.location.pathname);
+  if (onMeasurePage) {
+    measureLink.remove();
+  } else {
+    measureLink.href = data.settings.measure_guide_url;
+    measureLink.addEventListener('click', () => track('sizeguide_click_measure_guide', { source: 'calculator', context: 'form' }));
+  }
 
   // --- Calculate --------------------------------------------------------------
   // `trigger` says why we calculate: 'form' or 'shared_link' are tracked in analytics;
@@ -277,11 +284,12 @@ export async function mount(element, options = {}) {
           el('p', { class: 'efsg-no-match-title' }, strings.noMatch),
           el('p', {}, strings.noMatchHelp),
           el('div', { class: 'efsg-actions' }, [
-            trackedLink(
-              el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.measure_guide_url }, strings.howToMeasure),
-              'sizeguide_click_measure_guide',
-              { source: 'calculator', context: 'no_match' }
-            ),
+            !onMeasurePage &&
+              trackedLink(
+                el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.measure_guide_url }, strings.howToMeasure),
+                'sizeguide_click_measure_guide',
+                { source: 'calculator', context: 'no_match' }
+              ),
             trackedLink(
               el('a', { class: 'efsg-button efsg-button-secondary', href: data.settings.dealer_finder_url }, strings.findDealer),
               'sizeguide_click_dealer',
