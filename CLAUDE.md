@@ -253,12 +253,13 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
 - [x] Size chart-tabell for produktsidene (`chart.js`, fase 0–3 ferdig 29.09.26).
 - [x] v1.1.0 tagget og pushet (29.09.26), filene verifisert på jsDelivr. Delbar testside oppdatert.
       Word-guidene 1 og 3 + `Webflow-kode.txt` oppdatert til v1.1.0; ny «Guide 4 - Fjerne gammel size chart - Webflow.docx».
-- [ ] Webflow (kollega, Guide 4): kalkulatoren → v1.1.0, ny Code Embed med tabellen rett under «Table10 Component»
-      (Section Table10 › … › Padding Vertical), test på staging, skjul «Table10 Component» med **Element settings →
-      Visibility: Hidden** (ikke Display: None – endrer klassen), publiser. Registrer `source` i GA4.
+- [x] Webflow (kollega, Guide 4): produktsidene kjører v1.1.0 med ny tabell i Section Table10, gammel tabell borte –
+      sett live 01.10.26. (Registrering av `source` i GA4 er ikke bekreftet.)
 - [ ] «How to measure»-siden (`/how-to-measure-for-equine-fusion-jogging-shoes`, én Code Embed med håndskrevet HTML):
-      bytt blokken `ef-size-section` («Compare Your Measurements») med kalkulator + tabell med modellknapper.
-      Bygd 01.10.26; gjenstår: godkjenning, tag v1.2.0, Word-guide, Webflow. Kode i `docs/webflow-size-chart.md`.
+      bytt blokken `ef-size-section` («Compare Your Measurements») med kalkulator + tabell med modellknapper,
+      og løft produktmalen til v1.2.0. v1.2.0 tagget og pushet 01.10.26, verifisert på jsDelivr og mot den ekte siden.
+      Gjenstår: Webflow (kollega, «Guide 5» i den felles mappen; `Webflow-kode.txt` har alle tre kodene).
+      Kode i `docs/webflow-size-chart.md`. Ny versjon senere = bytt versjon **tre steder** (to i produktmalen + denne siden).
 - [ ] Slett den gamle tabellen og CMS-samlingen `#cms-product-size-guide` når Sven Erik sier fra.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).
 - [ ] Steg 2: velg metode for bildeanalyse.

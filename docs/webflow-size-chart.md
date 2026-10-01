@@ -149,7 +149,7 @@ Hele siden er én Code Embed med håndskrevet HTML (`<div class="ef-measure-page
 `<div class="ef-size-section"> … </div>` («Compare Your Measurements» med fire lenker) byttes ut med:
 
 ```html
-<div class="ef-size-tools" style="margin-bottom:60px">
+<div class="ef-size-tools" style="max-width:760px;margin:0 auto 60px">
   <div id="ef-size-guide"></div>
   <div id="ef-size-chart" style="margin-top:56px"></div>
 </div>
@@ -165,7 +165,10 @@ Hele siden er én Code Embed med håndskrevet HTML (`<div class="ef-measure-page
 
 Ikke gjenbruk klassen `ef-size-section` rundt koden – sidens stil `.ef-size-section h2` (stor, midtstilt
 overskrift) ville påvirket overskriftene i kalkulatoren og tabellen.
-Word-guide for den som gjør jobben: «Guide 5» i den felles mappen.
+`max-width:760px` gir kalkulatoren (som selv er maks 760 px) og tabellen samme bredde, så de står på linje.
+Testet mot den ekte siden 01.10.26 (lokalt i nettleser, med v1.2.0 fra jsDelivr).
+Word-guide for den som gjør jobben: «Guide 5 - Kalkulator og size chart på How to measure-siden.docx»
+i den felles mappen. Den løfter også de to Embed-kodene i produktmalen fra v1.1.0 til v1.2.0.
 
 ## For utviklere: innstillinger
 
