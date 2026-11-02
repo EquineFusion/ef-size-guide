@@ -260,8 +260,11 @@ Excel-filen åpnes via SharePoint (OneDrive) med **AutoSave** – endringer via 
       sett live 01.10.26. (Registrering av `source` i GA4 er ikke bekreftet.)
 - [ ] «How to measure»-siden (`/how-to-measure-for-equine-fusion-jogging-shoes`, én Code Embed med håndskrevet HTML):
       bytt blokken `ef-size-section` («Compare Your Measurements») med kalkulator + tabell med modellknapper,
-      og løft produktmalen til v1.2.0. v1.2.0 tagget og pushet 01.10.26, verifisert på jsDelivr og mot den ekte siden.
-      Gjenstår: Webflow (kollega, «Guide 5» i den felles mappen; `Webflow-kode.txt` har alle tre kodene).
+      og løft produktmalen. v1.2.0 tagget 01.10.26; **v1.2.1** (Length før Width) tagget og pushet 02.11.26.
+      Status 02.11.26: siden er bygget om (flerspråklig); `ef-size-tools` ligger i sidens kode, men det ble lagt inn
+      to ekstra Embeds med **produktsidekoden** (v1.1.0) → tabellen vises ikke. Produktmalen står på v1.1.0.
+      Gjenstår: Webflow (kollega, «Guide 6» i den felles mappen – slett de to boksene, én script-boks med
+      `picker: true, tips: false`, produktmalen → v1.2.1). Guide 5 er utdatert. `Webflow-kode.txt` har alle tre kodene.
       Kode i `docs/webflow-size-chart.md`. Ny versjon senere = bytt versjon **tre steder** (to i produktmalen + denne siden).
 - [ ] Slett den gamle tabellen og CMS-samlingen `#cms-product-size-guide` når Sven Erik sier fra.
 - [ ] Steg 2: egen, trolig større toleranse for bildemålinger (fastsettes når metoden er valgt).

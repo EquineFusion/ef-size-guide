@@ -168,8 +168,33 @@ Ikke gjenbruk klassen `ef-size-section` rundt koden – sidens stil `.ef-size-se
 overskrift) ville påvirket overskriftene i kalkulatoren og tabellen.
 `max-width:760px` gir kalkulatoren (som selv er maks 760 px) og tabellen samme bredde, så de står på linje.
 Testet mot den ekte siden 01.10.26 (lokalt i nettleser, med v1.2.0 fra jsDelivr).
-Word-guide for den som gjør jobben: «Guide 5 - Kalkulator og size chart på How to measure-siden.docx»
-i den felles mappen. Den løfter også de to Embed-kodene i produktmalen fra v1.1.0 til v1.2.1 (v1.2.1: Length før Width).
+
+### Slik er siden bygget nå (sjekket 02.11.26)
+
+Siden er bygget om (flerspråklig, `<div id="ef-measure-page">` + eget script med tekster på en/de/fr/es).
+`<div class="ef-size-tools">` med `#ef-size-guide` og `#ef-size-chart` ligger **i sidens store Code Embed**.
+Feilen 02.11.26: under den lå to ekstra Code Embeds med **produktsidekoden** (v1.1.0, egne `#ef-size-guide`/
+`#ef-size-chart`, uten `picker`) → doble id-er, og tabellen fant ingen modell (vises ikke).
+
+Riktig oppsett nå: de to ekstra boksene slettes, og **én** Code Embed rett under sidens store boks inneholder
+**bare scriptet** (ikke `<div>`-ene – de finnes allerede):
+
+```html
+<script type="module">
+  import { mount }
+    from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.2.1/src/widget.js';
+  import { mountChart }
+    from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.2.1/src/chart.js';
+  mount(document.getElementById('ef-size-guide'));
+  mountChart(document.getElementById('ef-size-chart'), { picker: true, tips: false });
+</script>
+```
+
+Testet mot den ekte siden 02.11.26 (lokalt i nettleser, v1.2.1 fra jsDelivr): én av hver id, modellknapper,
+Length før Width, ingen lenker til siden selv. Word-guide: «Guide 6 - Rett opp How to measure-siden og bytt
+til v1.2.1.docx» i den felles mappen (løfter også produktmalen fra v1.1.0 til v1.2.1). Guide 5 er utdatert.
+
+**Obs:** Siden er flerspråklig, men kalkulatoren og tabellen er kun på engelsk (alle tekster i `strings`).
 
 ## For utviklere: innstillinger
 
