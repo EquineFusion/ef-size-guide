@@ -3,6 +3,7 @@
 //
 //   formatLength(mm, unit)            66 → "6.6" (cm) or "2 5/8" (in)
 //   formatRange(minMm, maxMm, unit)   "6.6 – 7.5"
+//   MEASURE_COLUMNS, measureCells()   column order: Length before Width, always
 //   buildChartRows(data, modelId)     one row per size, with Regular and Slim side by side
 //   findModelByPath(data, pathname)   which model's product page are we on?
 //   isSamePath(url, pathname)         does a link point to the page we are already on?
@@ -33,6 +34,25 @@ export function formatLength(mm, unit) {
   }
   // cm (default): one decimal. mm in the chart are whole numbers, so this is exact.
   return (Math.round(mm) / 10).toFixed(1);
+}
+
+/**
+ * Column order for the measurements in every size chart table (wide and narrow):
+ * Length always before Width (decided by Sven Erik 02.11.26).
+ */
+export const MEASURE_COLUMNS = ['length', 'width'];
+
+/**
+ * The measurement cells for one variant in a row, in MEASURE_COLUMNS order.
+ * measures = { lengthMinMm, lengthMaxMm, widthMinMm, widthMaxMm } or null (variant missing).
+ * Returns [{ column: 'length', text: '6.6 – 7.5' }, { column: 'width', text: '6.1 – 7.0' }];
+ * text is null when the variant is missing (the table shows "–").
+ */
+export function measureCells(measures, unit) {
+  return MEASURE_COLUMNS.map((column) => ({
+    column,
+    text: measures ? formatRange(measures[`${column}MinMm`], measures[`${column}MaxMm`], unit) : null,
+  }));
 }
 
 /** A min–max interval: "6.6 – 7.5" (en dash with spaces). */

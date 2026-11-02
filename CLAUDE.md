@@ -170,7 +170,10 @@ Oppdraget og designet er vedtatt av Sven Erik 28.09.26 – endringer i beslutnin
   avsluttende `/`, uavhengig av store/små bokstaver). Overstyring: `data-model="active"` eller `mountChart(el, { model })`.
   **Ingen treff → ingenting vises** + én `console.warn` med tips om `data-model`. Tabellen viser aldri feil modell.
   Ny modell i Excel med `product_url` virker uten kodeendring.
-- **Visning:** Regular og Slim som adskilte blokker, hver med bredde og lengde. cm med én desimal (`6.6`), tommer som
+- **Kolonnerekkefølge: Length alltid før Width** (vedtatt 02.11.26) – i Regular og Slim, på desktop og mobil,
+  og i all tekst som nevner begge (introen: «…where both your hoof length and width fit.»). Rekkefølgen styres
+  ett sted, `MEASURE_COLUMNS` i `chart-format.js` (testet). Bytt aldri rekkefølgen lokalt i `chart.js`.
+- **Visning:** Regular og Slim som adskilte blokker, hver med lengde og bredde. cm med én desimal (`6.6`), tommer som
   brøk til nærmeste 1/16, forkortet (`3 3/8`). Intervaller `6.6 – 7.5` (tankestrek). 1 mm < 1/16", så nabogrenser
   kan vise samme tommeverdi – akseptert.
 - **Layout** (container queries): ≥ 640 px én tabell (Size | Regular | Slim); smalere to tabeller under hverandre

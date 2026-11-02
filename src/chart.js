@@ -37,7 +37,7 @@
 //   - All customer-facing text is in `strings` below.
 //   - All classes are prefixed `efsc-`; all CSS is scoped under `.efsc-root` (chart.css).
 
-import { buildChartRows, findModelByPath, formatRange, isSamePath } from './chart-format.js';
+import { buildChartRows, findModelByPath, isSamePath, MEASURE_COLUMNS, measureCells } from './chart-format.js';
 import { UNITS, readStoredUnit, saveUnit, onUnitChange } from './unit-pref.js';
 import { sendEvent } from './analytics.js';
 
@@ -47,7 +47,7 @@ import { sendEvent } from './analytics.js';
 
 export const strings = {
   title: (model) => `${model} size chart`,
-  intro: 'Regular and Slim have separate measurements. Find the one where both your hoof width and length fit.',
+  intro: 'Regular and Slim have separate measurements. Find the one where both your hoof length and width fit.',
   soldAs: { single: 'Sold individually', pair: 'Sold in pairs' },
   unitLegend: 'Unit',
   unitNames: { cm: 'cm', in: 'inches' },
@@ -56,12 +56,15 @@ export const strings = {
 
   size: 'Size',
   variants: { regular: 'Regular', slim: 'Slim' },
-  width: (unit) => `Width (${unit})`,
-  length: (unit) => `Length (${unit})`,
+  // Column headings, keyed like MEASURE_COLUMNS in chart-format.js (which sets the order: Length, then Width).
+  columns: {
+    length: (unit) => `Length (${unit})`,
+    width: (unit) => `Width (${unit})`,
+  },
   // Table captions for screen readers (the visible headings say the same more briefly).
-  caption: (model, unitName) => `${model} size chart: hoof width and length in ${unitName}, Regular and Slim`,
+  caption: (model, unitName) => `${model} size chart: hoof length and width in ${unitName}, Regular and Slim`,
   variantCaptionBefore: (model) => `${model} `,
-  variantCaptionAfter: (unitName) => ` sizes: hoof width and length in ${unitName}`,
+  variantCaptionAfter: (unitName) => ` sizes: hoof length and width in ${unitName}`,
   notAvailable: 'Not available',
 
   // Tips from the catalogue (p. 31). Do not rewrite.
@@ -265,7 +268,8 @@ export async function mountChart(element, options = {}) {
 // Both layouts are built; chart.css shows one of them depending on the chart's own width
 // (the hidden one uses display: none, so screen readers only get the visible one).
 
-// Wide container: one table, Size | Regular (width, length) | Slim (width, length).
+// Wide container: one table, Size | Regular (length, width) | Slim (length, width).
+// The column order comes from MEASURE_COLUMNS (chart-format.js): Length always before Width.
 function wideTable(model, rows, unit) {
   const u = strings.unitShort[unit];
   const head = el('thead', {}, [
@@ -277,16 +281,17 @@ function wideTable(model, rows, unit) {
         ])
       ),
     ]),
-    el('tr', {}, VARIANTS.flatMap((v) => [
-      el('th', { scope: 'col', class: `efsc-col-head efsc-${v} efsc-block-start` }, strings.width(u)),
-      el('th', { scope: 'col', class: `efsc-col-head efsc-${v}` }, strings.length(u)),
-    ])),
+    el('tr', {}, VARIANTS.flatMap((v) =>
+      MEASURE_COLUMNS.map((column, i) =>
+        el('th', { scope: 'col', class: `efsc-col-head efsc-${v}${i === 0 ? ' efsc-block-start' : ''}` }, strings.columns[column](u))
+      )
+    )),
   ]);
 
   const body = el('tbody', {}, rows.map((row) =>
     el('tr', {}, [
       el('th', { scope: 'row', class: 'efsc-size' }, row.size),
-      ...VARIANTS.flatMap((v) => measureCells(row[v], v, unit)),
+      ...VARIANTS.flatMap((v) => measureTds(row[v], v, unit)),
     ])
   ));
 
@@ -300,7 +305,7 @@ function wideTable(model, rows, unit) {
   ]);
 }
 
-// Narrow container: one table per variant, Size | Width | Length.
+// Narrow container: one table per variant, Size | Length | Width.
 // Sizes that do not exist in this variant are left out of that table.
 function narrowTable(model, rows, variant, unit) {
   const u = strings.unitShort[unit];
@@ -314,33 +319,28 @@ function narrowTable(model, rows, variant, unit) {
     el('thead', {}, [
       el('tr', {}, [
         el('th', { scope: 'col', class: 'efsc-col-head' }, strings.size),
-        el('th', { scope: 'col', class: 'efsc-col-head' }, strings.width(u)),
-        el('th', { scope: 'col', class: 'efsc-col-head' }, strings.length(u)),
+        ...MEASURE_COLUMNS.map((column) => el('th', { scope: 'col', class: 'efsc-col-head' }, strings.columns[column](u))),
       ]),
     ]),
     el('tbody', {}, variantRows.map((row) =>
       el('tr', {}, [
         el('th', { scope: 'row', class: 'efsc-size' }, row.size),
-        ...measureCells(row[variant], variant, unit, false),
+        ...measureTds(row[variant], variant, unit, false),
       ])
     )),
   ]);
 }
 
-// Width and length cells for one variant; "–" if the size does not exist in that variant.
-function measureCells(measures, variant, unit, blockStart = true) {
-  const first = blockStart ? ' efsc-block-start' : '';
-  if (!measures) {
-    const missing = () => [el('span', { 'aria-hidden': 'true' }, '–'), el('span', { class: 'efsc-visually-hidden' }, strings.notAvailable)];
-    return [
-      el('td', { class: `efsc-cell efsc-${variant}${first}` }, missing()),
-      el('td', { class: `efsc-cell efsc-${variant}` }, missing()),
-    ];
-  }
-  return [
-    el('td', { class: `efsc-cell efsc-${variant}${first}` }, formatRange(measures.widthMinMm, measures.widthMaxMm, unit)),
-    el('td', { class: `efsc-cell efsc-${variant}` }, formatRange(measures.lengthMinMm, measures.lengthMaxMm, unit)),
-  ];
+// Length and width cells for one variant (order from measureCells in chart-format.js);
+// "–" if the size does not exist in that variant.
+function measureTds(measures, variant, unit, blockStart = true) {
+  return measureCells(measures, unit).map(({ text }, i) => {
+    const first = blockStart && i === 0 ? ' efsc-block-start' : '';
+    const content = text !== null
+      ? text
+      : [el('span', { 'aria-hidden': 'true' }, '–'), el('span', { class: 'efsc-visually-hidden' }, strings.notAvailable)];
+    return el('td', { class: `efsc-cell efsc-${variant}${first}` }, content);
+  });
 }
 
 function tipCard({ title, text }) {

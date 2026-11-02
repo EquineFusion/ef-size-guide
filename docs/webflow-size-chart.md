@@ -15,9 +15,9 @@ brukt Webflow Designer før. Regn med ca. 30 minutter, pluss testing.
 - **Word-guide for den som gjør jobben:** «Guide 4 - Fjerne gammel size chart - Webflow.docx» i den
   felles mappen (Nettsiden › Size chart master chart). Den dekker alt under, steg for steg, inkludert
   fjerning av den gamle tabellen. Denne filen er den tekniske oversikten.
-- **Versjon:** Koden under bruker `v1.2.0`. Kalkulatoren (som står over tabellen) skal ha
+- **Versjon:** Koden under bruker `v1.2.1`. Kalkulatoren (som står over tabellen) skal ha
   **samme versjon**. Kalkulatoren ligger i produktmalen på `v1.0.0` (sett live 29.09.26) – bytt den
-  til `v1.2.0` samtidig. Ellers følger ikke kalkulatoren og tabellen hverandre når kunden bytter
+  til `v1.2.1` samtidig. Ellers følger ikke kalkulatoren og tabellen hverandre når kunden bytter
   mellom cm og inches.
 - **Den gamle tabellen** skjules først når den nye er testet på testadressen (steg 4).
 - Du trenger tilgang til Webflow-prosjektet for eqfusion.com med rett til å redigere og publisere.
@@ -30,13 +30,13 @@ Kopier nøyaktig dette (alle linjene):
 <div id="ef-size-chart"></div>
 <script type="module">
   import { mountChart }
-    from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.2.0/src/chart.js';
+    from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.2.1/src/chart.js';
   mountChart(document.getElementById('ef-size-chart'));
 </script>
 ```
 
 Hva koden gjør: den første linjen lager en tom boks. Scriptet henter tabellen fra GitHub
-(via jsDelivr, låst til versjon `v1.2.0`), leser målene fra den samme datafilen som kalkulatoren,
+(via jsDelivr, låst til versjon `v1.2.1`), leser målene fra den samme datafilen som kalkulatoren,
 og fyller boksen. Det er ingen mål i Webflow – alt kommer fra Excel-filen via datafilen.
 
 ---
@@ -68,7 +68,7 @@ Main Wrapper
 
 ## 3. Legg inn Embed-elementet (og oppdater kalkulatoren)
 
-1. Kalkulatorens Code Embed: bytt `@v1.0.0` til `@v1.2.0` → **Save & Close**.
+1. Kalkulatorens Code Embed: bytt `@v1.0.0` til `@v1.2.1` → **Save & Close**.
 2. Klikk **Add elements** (plusstegnet øverst i venstremenyen).
 3. Under **Advanced**: dra **Code Embed** inn i **Padding Vertical**, rett **under Table10 Component**
    (samme nivå, ikke inni den).
@@ -89,8 +89,9 @@ Gjør dette på **Active**, **Trailblazer**, **Ultra** og **Trekking**:
 
 - [ ] Tabellen vises under kalkulatoren, med riktig tittel («Active size chart» osv.).
 - [ ] Antall størrelser: Active 10 · Trekking 10 · Ultra 7 · Trailblazer 9 (med 14.5).
-- [ ] Én stikkprøve stemmer med Excel, f.eks. Active størrelse 7: Regular bredde **6.1 – 7.0**,
-      lengde **6.6 – 7.5**; Slim bredde **5.1 – 6.0**.
+- [ ] Kolonnene står i rekkefølgen **Size | Length | Width** – både i Regular og Slim, på PC og mobil.
+- [ ] Én stikkprøve stemmer med Excel, f.eks. Active størrelse 7: Regular lengde **6.6 – 7.5**,
+      bredde **6.1 – 7.0**; Slim lengde **6.6 – 7.5**, bredde **5.1 – 6.0**.
 - [ ] «Sold in pairs» / «Sold individually» stemmer for modellen.
 - [ ] Trykk **inches** i tabellen: tallene blir brøker (f.eks. 2 3/8), og kalkulatoren over bytter også til inches.
       Trykk **cm** i kalkulatoren: tabellen bytter tilbake.
@@ -128,13 +129,13 @@ Når alt i sjekklisten er i orden på testadressen:
   **Navigator** → trykk **Delete** på tastaturet. Sett **Table10 Component** tilbake til
   *Visibility: Visible*. Publiser.
   Webflow har også **Backups** (Site settings → Backups) som kan gjenopprette en tidligere versjon av hele siden.
-- **Feil i en ny versjon (f.eks. `v1.2.1`):** Bytt versjonen i koden tilbake til forrige (f.eks. `@v1.2.0`)
+- **Feil i en ny versjon (f.eks. `v1.2.2`):** Bytt versjonen i koden tilbake til forrige (f.eks. `@v1.2.1`)
   og publiser. Gamle versjoner ligger alltid på jsDelivr.
 
 ## Ny versjon senere (f.eks. endrede mål)
 
 Tabellen og kalkulatoren henter mål fra samme datafil. Når målene endres i Excel, lages en ny versjon
-(se `docs/data-guide.md`, «Slik endrer du mål»). I Webflow byttes da `@v1.2.0` til den nye versjonen
+(se `docs/data-guide.md`, «Slik endrer du mål»). I Webflow byttes da `@v1.2.1` til den nye versjonen
 **både** i tabellens Embed-kode (produktmalen) **og** i kalkulatorens Embed-kode. Publiser på testadressen først.
 
 ## «How to measure»-siden: kalkulator + tabell med modellknapper (v1.2.0)
@@ -155,9 +156,9 @@ Hele siden er én Code Embed med håndskrevet HTML (`<div class="ef-measure-page
 </div>
 <script type="module">
   import { mount }
-    from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.2.0/src/widget.js';
+    from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.2.1/src/widget.js';
   import { mountChart }
-    from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.2.0/src/chart.js';
+    from 'https://cdn.jsdelivr.net/gh/EquineFusion/ef-size-guide@v1.2.1/src/chart.js';
   mount(document.getElementById('ef-size-guide'));
   mountChart(document.getElementById('ef-size-chart'), { picker: true, tips: false });
 </script>
@@ -168,7 +169,7 @@ overskrift) ville påvirket overskriftene i kalkulatoren og tabellen.
 `max-width:760px` gir kalkulatoren (som selv er maks 760 px) og tabellen samme bredde, så de står på linje.
 Testet mot den ekte siden 01.10.26 (lokalt i nettleser, med v1.2.0 fra jsDelivr).
 Word-guide for den som gjør jobben: «Guide 5 - Kalkulator og size chart på How to measure-siden.docx»
-i den felles mappen. Den løfter også de to Embed-kodene i produktmalen fra v1.1.0 til v1.2.0.
+i den felles mappen. Den løfter også de to Embed-kodene i produktmalen fra v1.1.0 til v1.2.1 (v1.2.1: Length før Width).
 
 ## For utviklere: innstillinger
 

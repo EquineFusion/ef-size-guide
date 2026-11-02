@@ -5,7 +5,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { formatLength, formatRange, buildChartRows, findModelByPath, isSamePath } from '../src/chart-format.js';
+import {
+  formatLength, formatRange, buildChartRows, findModelByPath, isSamePath, MEASURE_COLUMNS, measureCells,
+} from '../src/chart-format.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data', 'size-chart.json'), 'utf8'));
@@ -118,4 +120,30 @@ test('isSamePath: the measuring guide page links to itself', () => {
   assert.equal(isSamePath(url, '/'), false);
   assert.equal(isSamePath('', '/'), false);
   assert.equal(isSamePath(undefined, pagePath), false);
+});
+
+test('column order: Length always before Width', () => {
+  assert.deepEqual(MEASURE_COLUMNS, ['length', 'width']);
+});
+
+test('measureCells: Length first, then Width, formatted in the chosen unit', () => {
+  const active7 = buildChartRows(data, 'active').find((r) => r.size === '7');
+  // Active 7 Regular: length 66–75, width 61–70.
+  assert.deepEqual(measureCells(active7.regular, 'cm'), [
+    { column: 'length', text: '6.6 – 7.5' },
+    { column: 'width', text: '6.1 – 7.0' },
+  ]);
+  // Active 7 Slim: length 66–75, width 51–60.
+  assert.deepEqual(measureCells(active7.slim, 'cm'), [
+    { column: 'length', text: '6.6 – 7.5' },
+    { column: 'width', text: '5.1 – 6.0' },
+  ]);
+  assert.deepEqual(measureCells(active7.regular, 'in').map((c) => c.column), ['length', 'width']);
+});
+
+test('measureCells: missing variant gives empty cells in the same order', () => {
+  assert.deepEqual(measureCells(null, 'cm'), [
+    { column: 'length', text: null },
+    { column: 'width', text: null },
+  ]);
 });
